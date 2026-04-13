@@ -1,0 +1,175 @@
+.shop-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #f3f3f3;
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.shop-shell {
+  width: 100%;
+  max-width: 430px;
+  min-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.shop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.shop-title {
+  font-family: 'Dela Gothic One', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #000;
+  letter-spacing: 0.01em;
+}
+
+.shop-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.shop-icon-button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.shop-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.page-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 12px;
+}
+
+.shop-search-bar {
+  height: 38px;
+  background: #ffffff;
+  border: 1px solid #cfcfcf;
+  border-radius: 999px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 0 12px 0 14px;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.shop-search-bar input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.8rem;
+  color: #222;
+}
+
+.shop-search-icon-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.shop-category-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.shop-category-btn {
+  border: 1px solid #bfc2c7;
+  background: #ffffff;
+  color: #111;
+  border-radius: 999px;
+  min-width: 52px;
+  height: 32px;
+  padding: 0 14px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.shop-category-btn.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.shop-card {
+  background: #f7f7f7;
+  border: 1px solid #d0d0d0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.shop-card-image {
+  width: 100%;
+  height: 138px;
+  object-fit: cover;
+  display: block;
+  background: #ffffff;
+}
+
+.shop-card-body {
+  padding: 10px 10px 12px;
+}
+
+.shop-card-price {
+  margin: 0 0 6px 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #111;
+}
+
+.shop-card-title {
+  margin: 0 0 2px 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #222;
+  line-height: 1.25;
+}
+
+.shop-card-details {
+  margin: 0;
+  font-size: 0.64rem;
+  color: #727272;
+  line-height: 1.35;
+}
+
+@media (min-width: 768px) {
+  .shop-page {
+    padding: 32px 20px;
+  }
+}

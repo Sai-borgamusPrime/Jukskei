@@ -1,0 +1,166 @@
+.teams-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #f3f3f3;
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.teams-shell {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.teams-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.teams-title {
+  font-family: 'Dela Gothic One', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #000;
+  letter-spacing: 0.01em;
+}
+
+.notification-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.teams-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.page-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 12px;
+}
+
+.search-bar {
+  height: 38px;
+  background: #dcdcdc;
+  border-radius: 999px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  padding: 0 12px 0 14px;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.search-bar input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.8rem;
+  color: #222;
+}
+
+.search-icon-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.teams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.team-row-card {
+  background: #f7f7f7;
+  border: 1px solid #bfc3c8;
+  border-radius: 12px;
+  padding: 14px 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.team-row-card:hover {
+  transform: translateY(-1px);
+}
+
+.team-row-card:active {
+  transform: scale(0.99);
+}
+
+.team-number {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.team-row-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #202020;
+}
+
+.team-badge {
+  min-width: 54px;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.team-badge.green {
+  background: #39c659;
+}
+
+.team-badge.yellow {
+  background: #f2c200;
+}
+
+.team-badge.orange {
+  background: #ff962f;
+}
+
+.team-badge.red {
+  background: #ff3b30;
+}
+
+.team-badge.black {
+  background: #111;
+}
+
+@media (min-width: 768px) {
+  .teams-page {
+    padding: 32px 20px;
+  }
+}
