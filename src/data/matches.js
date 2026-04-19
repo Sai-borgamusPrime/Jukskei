@@ -1,7 +1,7 @@
 const matches = [
   {
     id: 1,
-    homeTeam: "Tech Wizards",
+    homeTeam: "Plattelanders",
     awayTeam: "Nathan's Hammers",
     homeScore: 22,
     awayScore: 40,
@@ -11,8 +11,8 @@ const matches = [
   },
   {
     id: 2,
-    homeTeam: "Ombu Juggernauts",
-    awayTeam: "King Price Assassins",
+    homeTeam: "SAJJR",
+    awayTeam: "Police A",
     homeScore: 9,
     awayScore: 5,
     status: "Live",
