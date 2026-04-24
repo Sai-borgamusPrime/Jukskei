@@ -1,9 +1,9 @@
 Jukskei App - To Do
 
-[] Update Team List and logos
-[] Make calendar clickable + be able to add and display events
-[] Add international test schedule (29th May)
-[] Add program for Sondag 24 Mei 2026
+[v] Update Team List and logos
+[v] Make calendar clickable + be able to add and display events
+[v] Add international test schedule (29th May)
+[v] Add program for Sondag 24 Mei 2026
 [] Implement A & B divisions
 [] Implement total score views on each teams tab
 [] Update Menu with actual food and drink items
