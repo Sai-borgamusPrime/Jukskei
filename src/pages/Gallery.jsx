@@ -3,6 +3,7 @@ import "./Gallery.css";
 import galleryImages from "../data/galleryImages";
 import BottomNav from "../components/BottomNav";
 import { Upload, Trash2, Star, X, ArrowLeft } from "lucide-react";
+import ThemeToggle from "../components/ThemeToggle";
 
 function Gallery() {
   const [categories, setCategories] = useState(galleryImages);
@@ -79,6 +80,8 @@ function Gallery() {
       <section className="gallery-shell">
         <header className="gallery-header">
           <h1 className="gallery-title">JUKSKEI</h1>
+
+          <ThemeToggle />
         </header>
 
         {!activeCategory ? (

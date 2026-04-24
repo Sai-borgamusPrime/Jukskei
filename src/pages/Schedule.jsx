@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
-import { Bell, ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
 import BottomNav from "../components/BottomNav";
+import ThemeToggle from "../components/ThemeToggle";
 import "./Schedule.css";
+import useTheme from "../hooks/useTheme";
 
 const months = [
   "January",
@@ -28,6 +30,7 @@ function displayDate(date) {
 
 function Schedule() {
   const today = new Date(2026, 4, 24);
+  useTheme();
 
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -370,9 +373,7 @@ function Schedule() {
         <header className="schedule-header">
           <h1 className="schedule-title">JUKSKEI</h1>
 
-          <button className="notification-button" aria-label="Notifications">
-            <Bell size={18} strokeWidth={2.2} />
-          </button>
+          <ThemeToggle />
         </header>
 
         <section className="schedule-section">

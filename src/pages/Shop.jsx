@@ -1,6 +1,7 @@
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import BottomNav from "../components/BottomNav";
+import ThemeToggle from "../components/ThemeToggle";
 import shopItems from "../data/shopItems";
 import "./Shop.css";
 
@@ -30,18 +31,12 @@ function Shop() {
           <h1 className="shop-title">JUKSKEI</h1>
 
           <div className="shop-header-actions">
-            <button className="shop-icon-button" aria-label="Search">
-              <Search size={18} strokeWidth={2.2} />
-            </button>
-
-            <button className="shop-icon-button" aria-label="Notifications">
-              <Bell size={18} strokeWidth={2.2} />
-            </button>
+            <ThemeToggle />
           </div>
         </header>
 
         <section className="shop-section">
-          <h2 className="page-heading">Gift Shop</h2>
+          <h2 className="shop-page-heading">Gift Shop</h2>
 
           <div className="shop-search-bar">
             <input
@@ -82,9 +77,10 @@ function Shop() {
                 <div className="shop-card-body">
                   <p className="shop-card-price">N${item.price.toFixed(2)}</p>
                   <h3 className="shop-card-title">{item.subtitle}</h3>
-                  {item.details ? (
+
+                  {item.details && (
                     <p className="shop-card-details">{item.details}</p>
-                  ) : null}
+                  )}
                 </div>
               </article>
             ))}

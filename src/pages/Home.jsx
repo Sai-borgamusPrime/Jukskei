@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Bell, Radio } from "lucide-react";
+import { Radio } from "lucide-react";
 import MatchCard from "../components/MatchCard";
 import BottomNav from "../components/BottomNav";
+import ThemeToggle from "../components/ThemeToggle";
 import matches from "../data/matches";
 import "./Home.css";
 
@@ -19,9 +20,7 @@ function Home() {
         <header className="home-header">
           <h1 className="home-title">JUKSKEI</h1>
 
-          <button className="notification-button" aria-label="Notifications">
-            <Bell size={18} strokeWidth={2.2} />
-          </button>
+          <ThemeToggle />
         </header>
 
         <div className="home-tabs">

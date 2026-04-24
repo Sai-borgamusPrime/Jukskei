@@ -1,7 +1,8 @@
-import { Bell, Search, SlidersHorizontal, Trophy } from "lucide-react";
+import { Search, SlidersHorizontal, Trophy } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
+import ThemeToggle from "../components/ThemeToggle";
 import teams from "../data/teams";
 import "./Teams.css";
 
@@ -40,13 +41,11 @@ function Teams() {
         <header className="teams-header">
           <h1 className="teams-title">JUKSKEI</h1>
 
-          <button className="notification-button" aria-label="Notifications">
-            <Bell size={18} strokeWidth={2.2} />
-          </button>
+          <ThemeToggle />
         </header>
 
         <section className="teams-section">
-          <h2 className="page-heading">Teams</h2>
+          <h2 className="teams-page-heading">Teams</h2>
 
           <div className="tabs">
             <button

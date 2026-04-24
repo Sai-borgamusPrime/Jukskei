@@ -1,11 +1,15 @@
 .teams-page {
   min-height: 100vh;
   min-height: 100dvh;
-  background: #f3f3f3;
+  background: var(--page-bg);
+  color: var(--text-main);
   display: flex;
   justify-content: center;
   padding: 24px 16px;
   padding-bottom: 100px;
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease;
 }
 
 .teams-shell {
@@ -26,20 +30,9 @@
   font-family: "Dela Gothic One", sans-serif;
   font-size: 2rem;
   font-weight: 900;
-  color: #000;
+  color: var(--text-main);
   letter-spacing: 0.01em;
-}
-
-.notification-button {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: transparent;
-  color: #111;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  transition: color 0.45s ease;
 }
 
 .teams-section {
@@ -48,11 +41,12 @@
   flex: 1;
 }
 
-.page-heading {
+.teams-page-heading {
   font-size: 1rem;
   font-weight: 800;
-  color: #111;
+  color: var(--text-main);
   margin-bottom: 12px;
+  transition: color 0.45s ease;
 }
 
 .tabs {
@@ -62,9 +56,9 @@
 }
 
 .tab {
-  border: 1px solid #d5d8de;
-  background: rgba(255, 255, 255, 0.9);
-  color: #111;
+  border: 1px solid var(--soft-border);
+  background: var(--surface-bg);
+  color: var(--text-main);
   border-radius: 999px;
   min-width: 52px;
   height: 32px;
@@ -72,18 +66,29 @@
   font-size: 0.72rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 5px 14px var(--shadow-soft);
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.2s ease;
+}
+
+.tab:hover {
+  transform: translateY(-1px);
 }
 
 .tab.active {
-  background: #000;
-  color: #fff;
-  border-color: #000;
+  background: var(--active-bg);
+  color: var(--active-text);
+  border-color: var(--active-bg);
 }
 
 .search-bar {
   height: 40px;
-  background: linear-gradient(180deg, #eeeeee, #dedede);
+  background: var(--surface-bg);
+  border: 1px solid var(--soft-border);
   border-radius: 999px;
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -91,7 +96,11 @@
   padding: 0 12px 0 14px;
   gap: 8px;
   margin-bottom: 16px;
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 12px var(--shadow-soft);
+  transition:
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    box-shadow 0.45s ease;
 }
 
 .search-bar input {
@@ -99,7 +108,11 @@
   background: transparent;
   outline: none;
   font-size: 0.8rem;
-  color: #222;
+  color: var(--text-main);
+}
+
+.search-bar input::placeholder {
+  color: var(--text-muted);
 }
 
 .search-icon-btn {
@@ -107,11 +120,18 @@
   height: 24px;
   border: none;
   background: transparent;
-  color: #222;
+  color: var(--text-main);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition:
+    color 0.35s ease,
+    transform 0.2s ease;
+}
+
+.search-icon-btn:hover {
+  transform: translateY(-1px);
 }
 
 .teams-list {
@@ -124,15 +144,11 @@
   position: relative;
   overflow: hidden;
   min-height: 76px;
-  border: 1px solid rgba(190, 196, 205, 0.9);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 12px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(245, 247, 250, 0.92)),
-    #fff;
-  box-shadow:
-    0 12px 26px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
+  box-shadow: 0 12px 26px var(--shadow-soft);
   display: grid;
   grid-template-columns: 34px 1fr auto;
   align-items: center;
@@ -141,9 +157,11 @@
   text-align: left;
   cursor: pointer;
   transition:
+    background-color 0.45s ease,
+    color 0.45s ease,
     transform 0.18s ease,
     box-shadow 0.18s ease,
-    border-color 0.18s ease;
+    border-color 0.45s ease;
 }
 
 .team-row-card::before {
@@ -167,9 +185,7 @@
 
 .team-row-card:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 16px 30px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 30px var(--shadow-soft);
 }
 
 .team-row-card:active {
@@ -180,8 +196,8 @@
   width: 30px;
   height: 30px;
   border-radius: 999px;
-  background: #111;
-  color: #fff;
+  background: var(--active-bg);
+  color: var(--active-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -202,15 +218,16 @@
   width: 42px;
   height: 42px;
   border-radius: 14px;
-  background: #fff;
+  background: var(--surface-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow:
-    0 6px 14px rgba(0, 0, 0, 0.1),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 14px var(--shadow-soft);
   overflow: hidden;
   flex-shrink: 0;
+  transition:
+    background-color 0.45s ease,
+    box-shadow 0.45s ease;
 }
 
 .team-logo {
@@ -229,16 +246,18 @@
 .team-row-name {
   font-size: 0.86rem;
   font-weight: 900;
-  color: #141414;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.45s ease;
 }
 
 .team-meta {
   font-size: 0.65rem;
   font-weight: 700;
-  color: #7c828c;
+  color: var(--text-muted);
+  transition: color 0.45s ease;
 }
 
 .score-area {
@@ -247,8 +266,9 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 3px;
-  color: #111;
+  color: var(--text-main);
   z-index: 1;
+  transition: color 0.45s ease;
 }
 
 .score-label {
@@ -256,7 +276,8 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #8b929c;
+  color: var(--text-muted);
+  transition: color 0.45s ease;
 }
 
 .team-score-badge {
@@ -325,6 +346,7 @@
 
 .rank-blue .rank-pill {
   background: #101828;
+  color: #fff;
 }
 
 .rank-blue .team-score-badge {

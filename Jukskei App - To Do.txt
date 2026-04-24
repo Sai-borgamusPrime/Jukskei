@@ -9,9 +9,9 @@ Jukskei App - To Do
 [v] Update Menu with actual food and drink items
 [v] Lunches are only available on Mon, Tue, and Wed; Display meal days
 [v] Add special events button under Menu for steak braai 
-
 [v] Add photo gallery page 
-[] Add dark and light mode
+[v] Add dark and light mode
+
 [] Make app responsive 
 [] Spell Jukskei correctly 
 

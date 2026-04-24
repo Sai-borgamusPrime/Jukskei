@@ -1,4 +1,4 @@
-import { Bell, ChevronLeft, Radio } from "lucide-react";
+import { ChevronLeft, Radio } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
@@ -18,7 +18,7 @@ function TeamDetails() {
     return (
       <main className="team-details-page">
         <section className="team-details-shell">
-          <p>Team not found.</p>
+          <p className="team-not-found">Team not found.</p>
         </section>
       </main>
     );
@@ -35,10 +35,6 @@ function TeamDetails() {
               onClick={() => navigate("/teams")}
             >
               <ChevronLeft size={18} strokeWidth={2.4} />
-            </button>
-
-            <button className="team-icon-button" aria-label="Notifications">
-              <Bell size={18} strokeWidth={2.2} />
             </button>
           </div>
 
@@ -59,6 +55,7 @@ function TeamDetails() {
           >
             <span>Past Matches</span>
           </button>
+
           <button
             className={`team-tab ${activeTab === "live" ? "active" : ""}`}
             onClick={() => setActiveTab("live")}

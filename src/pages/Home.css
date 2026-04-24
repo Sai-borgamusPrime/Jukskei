@@ -1,11 +1,13 @@
 .home-page {
   min-height: 100vh;
   min-height: 100dvh;
-  background: #f3f3f3;
+  background: var(--page-bg);
+  color: var(--text-main);
   display: flex;
   justify-content: center;
   padding: 24px 16px;
   padding-bottom: 100px;
+  transition: background-color 0.45s ease, color 0.45s ease;
 }
 
 .home-shell {
@@ -14,7 +16,7 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding-bottom: 80px
+  padding-bottom: 80px;
 }
 
 .home-header {
@@ -26,21 +28,10 @@
 .home-title {
   font-size: 2rem;
   font-weight: 900;
-  color: #000;
+  color: var(--text-main);
   letter-spacing: 0.01em;
   font-family: "Dela Gothic One", sans-serif;
-}
-
-.notification-button {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: transparent;
-  color: #111;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  transition: color 0.45s ease;
 }
 
 .home-tabs {
@@ -50,24 +41,29 @@
 }
 
 .tab-button {
-  border: 1px solid #bfc2c7;
-  background: #ffffff;
-  color: #111;
+  border: 1px solid var(--soft-border);
+  background: var(--surface-bg);
+  color: var(--text-main);
   border-radius: 999px;
   height: 38px;
   padding: 0 14px;
   font-size: 0.85rem;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px var(--shadow-soft);
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    border-color 0.35s ease,
+    transform 0.2s ease;
 }
 
 .tab-button.active {
-  background: #000;
-  color: #fff;
-  border-color: #000;
+  background: var(--active-bg);
+  color: var(--active-text);
+  border-color: var(--active-bg);
 }
 
 .matches-section {
@@ -80,7 +76,8 @@
 .section-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111;
+  color: var(--text-main);
+  transition: color 0.45s ease;
 }
 
 .matches-list {
@@ -90,14 +87,23 @@
 }
 
 .match-card {
-  background: #f2f2f2;
-  border: 1px solid #aeb2b8;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 14px 12px 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 10px var(--shadow-soft);
   display: flex;
   flex-direction: column;
   gap: 12px;
+  transition:
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    box-shadow 0.45s ease,
+    transform 0.25s ease;
+}
+
+.match-card:hover {
+  transform: translateY(-2px);
 }
 
 .match-card-top {
@@ -116,14 +122,16 @@
 .match-date {
   font-size: 0.78rem;
   font-weight: 700;
-  color: #111;
+  color: var(--text-main);
   line-height: 1.2;
+  transition: color 0.45s ease;
 }
 
 .match-time {
   font-size: 0.72rem;
-  color: #7a7a7a;
+  color: var(--text-muted);
   line-height: 1.2;
+  transition: color 0.45s ease;
 }
 
 .match-status {
@@ -147,6 +155,11 @@
 .match-status.finished {
   background: #d8dde3;
   color: #44505c;
+}
+
+:root.dark-mode .match-status.finished {
+  background: #252d3b;
+  color: #c1c8d6;
 }
 
 .match-card-body {
@@ -173,8 +186,9 @@
 .team-name {
   margin-top: 8px;
   font-size: 0.72rem;
-  color: #7a7a7a;
+  color: var(--text-muted);
   line-height: 1.2;
+  transition: color 0.45s ease;
 }
 
 .match-score {
@@ -184,8 +198,9 @@
   gap: 6px;
   font-size: 1.8rem;
   font-weight: 700;
-  color: #111;
+  color: var(--text-main);
   line-height: 1;
+  transition: color 0.45s ease;
 }
 
 .score-divider {
@@ -204,42 +219,6 @@
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-
-  height: 70px;
-  background: #ffffff;
-
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-
-  border-top: 1px solid #dcdcdc;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
-
-  z-index: 1000;
-}
-
-.nav-item {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  color: #111;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.nav-item.active {
-  background: #000;
-  color: #fff;
 }
 
 @media (min-width: 768px) {

@@ -1,6 +1,7 @@
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import BottomNav from "../components/BottomNav";
+import ThemeToggle from "../components/ThemeToggle";
 import menuItems from "../data/menuItems";
 import "./Menu.css";
 
@@ -39,18 +40,12 @@ function Menu() {
           <h1 className="menu-title">JUKSKEI</h1>
 
           <div className="menu-header-actions">
-            <button className="menu-icon-button" aria-label="Search">
-              <Search size={18} strokeWidth={2.2} />
-            </button>
-
-            <button className="menu-icon-button" aria-label="Notifications">
-              <Bell size={18} strokeWidth={2.2} />
-            </button>
+            <ThemeToggle />
           </div>
         </header>
 
         <section className="menu-section">
-          <h2 className="page-heading">Menu</h2>
+          <h2 className="menu-page-heading">Menu</h2>
 
           <div className="menu-search-bar">
             <input

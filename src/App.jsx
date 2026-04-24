@@ -8,12 +8,14 @@ import TeamDetails from "./pages/TeamDetails";
 import Menu from "./pages/Menu";
 import Shop from "./pages/Shop";
 import Gallery from "./pages/Gallery";
+import useTheme from "./hooks/useTheme";
 
 function Placeholder({ title }) {
   return <h1 style={{ padding: "2rem" }}>{title}</h1>;
 }
 
 function App() {
+  useTheme();
   return (
     <Routes>
       <Route path="/" element={<Splash />} />

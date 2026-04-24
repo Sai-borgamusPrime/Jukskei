@@ -1,11 +1,15 @@
 .schedule-page {
   min-height: 100vh;
   min-height: 100dvh;
-  background: #f3f3f3;
+  background: var(--page-bg);
+  color: var(--text-main);
   display: flex;
   justify-content: center;
   padding: 24px 16px;
   padding-bottom: 100px;
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease;
 }
 
 .schedule-shell {
@@ -29,28 +33,17 @@
   font-family: "Dela Gothic One", sans-serif;
   font-size: 2rem;
   font-weight: 900;
-  color: #000;
+  color: var(--text-main);
   letter-spacing: 0.01em;
-}
-
-.notification-button {
-  width: 34px;
-  height: 34px;
-  border: none;
-  border-radius: 50%;
-  background: #fff;
-  color: #111;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  transition: color 0.45s ease;
 }
 
 .page-heading {
   font-size: 1rem;
   font-weight: 700;
-  color: #111;
+  color: var(--text-main) !important;
   margin-bottom: 12px;
+  transition: color 0.45s ease;
 }
 
 .schedule-section {
@@ -60,10 +53,15 @@
 }
 
 .calendar-card {
-  background: #f4f4f4;
-  border: 1px solid #d3d3d3;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 14px;
+  box-shadow: 0 4px 10px var(--shadow-soft);
+  transition:
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    box-shadow 0.45s ease;
 }
 
 .calendar-controls {
@@ -78,20 +76,34 @@
   width: 28px;
   height: 28px;
   border: none;
+  border-radius: 8px;
   background: transparent;
+  color: var(--text-main);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.icon-btn:hover {
+  background: var(--surface-bg);
 }
 
 .calendar-select {
   height: 30px;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--soft-border);
   border-radius: 8px;
   padding: 0 10px;
-  background: #fff;
+  background: var(--surface-bg);
+  color: var(--text-main);
   font-size: 0.8rem;
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease,
+    border-color 0.45s ease;
 }
 
 .year-select {
@@ -107,14 +119,16 @@
 
 .calendar-weekdays {
   font-size: 0.65rem;
-  color: #909090;
+  color: var(--text-muted);
   margin-bottom: 8px;
+  transition: color 0.45s ease;
 }
 
 .calendar-grid {
   row-gap: 12px;
   font-size: 0.78rem;
-  color: #454545;
+  color: var(--text-main);
+  transition: color 0.45s ease;
 }
 
 .calendar-day {
@@ -124,22 +138,27 @@
   border: none;
   background: transparent;
   border-radius: 8px;
-  color: #454545;
+  color: var(--text-main);
   font-size: 0.78rem;
   cursor: pointer;
   margin: 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease;
 }
 
 .calendar-day:hover {
-  background: #e8e8e8;
+  background: var(--surface-bg);
+  transform: translateY(-1px);
 }
 
 .active-day {
-  background: #2b2b2b;
-  color: #fff;
+  background: var(--active-bg);
+  color: var(--active-text);
 }
 
 .event-indicator {
@@ -169,27 +188,41 @@
 
 .event-form input {
   height: 38px;
-  border: 1px solid #bfc3c8;
+  border: 1px solid var(--soft-border);
   border-radius: 10px;
   padding: 0 10px;
   font-size: 0.78rem;
-  background: #fff;
+  background: var(--surface-bg);
+  color: var(--text-main);
   min-width: 0;
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease,
+    border-color 0.45s ease;
+}
+
+.event-form input::placeholder,
+.modal-form input::placeholder {
+  color: var(--text-muted);
 }
 
 .event-form button {
   border: none;
   border-radius: 10px;
   background: #1769ff;
-  color: white;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    transform 0.2s ease;
 }
 
 .event-form button:hover {
   background: #0f57d8;
+  transform: translateY(-1px);
 }
 
 .schedule-list {
@@ -225,60 +258,82 @@
 }
 
 .schedule-card-content {
-  background: #f7f7f7;
-  border: 1px solid #bfc3c8;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 12px 14px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 10px var(--shadow-soft);
+  transition:
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    box-shadow 0.45s ease,
+    transform 0.2s ease;
+}
+
+.schedule-card:hover .schedule-card-content {
+  transform: translateY(-1px);
 }
 
 .schedule-time {
   font-size: 0.7rem;
-  color: #8c8c8c;
+  color: var(--text-muted);
   margin-bottom: 6px;
+  transition: color 0.45s ease;
 }
 
 .schedule-match {
   font-size: 0.78rem;
-  color: #202020;
+  color: var(--text-main);
   line-height: 1.3;
+  transition: color 0.45s ease;
 }
 
 .schedule-location {
   font-size: 0.7rem;
-  color: #666;
+  color: var(--text-muted);
   margin-top: 5px;
   line-height: 1.3;
+  transition: color 0.45s ease;
 }
 
 .empty-events {
   font-size: 0.8rem;
-  color: #777;
+  color: var(--text-muted);
   padding: 12px;
-  border: 1px dashed #c4c4c4;
+  border: 1px dashed var(--soft-border);
   border-radius: 12px;
-  background: #f8f8f8;
+  background: var(--card-bg);
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease,
+    border-color 0.45s ease;
 }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 18px;
-  z-index: 1000;
+  z-index: 1001;
 }
 
 .event-modal {
   position: relative;
   width: 100%;
   max-width: 360px;
-  background: #fff;
+  background: var(--surface-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
   border-radius: 18px;
   padding: 20px;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease,
+    border-color 0.45s ease;
 }
 
 .modal-close {
@@ -289,18 +344,23 @@
   height: 30px;
   border: none;
   border-radius: 50%;
-  background: #f1f1f1;
+  background: var(--card-bg);
+  color: var(--text-main);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 .modal-title {
   font-size: 1rem;
   font-weight: 800;
   margin-bottom: 18px;
-  color: #111;
+  color: var(--text-main);
+  transition: color 0.45s ease;
 }
 
 .modal-form {
@@ -311,10 +371,16 @@
 
 .modal-form input {
   height: 40px;
-  border: 1px solid #bfc3c8;
+  border: 1px solid var(--soft-border);
   border-radius: 10px;
   padding: 0 12px;
   font-size: 0.82rem;
+  background: var(--surface-bg);
+  color: var(--text-main);
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease,
+    border-color 0.45s ease;
 }
 
 .save-btn,
@@ -325,6 +391,15 @@
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease;
+}
+
+.save-btn:hover,
+.delete-btn:hover {
+  transform: translateY(-1px);
 }
 
 .save-btn {
@@ -337,12 +412,12 @@
 }
 
 .delete-btn {
-  background: #ffe8e8;
-  color: #c62828;
+  background: var(--danger-soft, #ffe8e8);
+  color: var(--danger-text, #c62828);
 }
 
 .delete-btn:hover {
-  background: #ffd7d7;
+  background: var(--danger-soft-hover, #ffd7d7);
 }
 
 @media (max-width: 390px) {
