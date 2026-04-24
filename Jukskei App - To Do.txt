@@ -10,15 +10,15 @@ Jukskei App - To Do
 [v] Lunches are only available on Mon, Tue, and Wed; Display meal days
 [v] Add special events button under Menu for steak braai 
 
-[] Add photo gallery page 
+[v] Add photo gallery page 
 [] Add dark and light mode
 [] Make app responsive 
-[] Spell Jukskei
+[] Spell Jukskei correctly 
 
 Comments
 
 - Final team list by next Monday (27th April)
 - Fredrick and Stella are Admins 
 
-Update Menu with actual food and drink items | Lunches are only available on Mon, Tue, and Wed; Display meal days | Add special events button under Menu for steak braai
+
 

@@ -5,6 +5,7 @@ import {
   Trophy,
   UtensilsCrossed,
   Store,
+  Images,
 } from "lucide-react";
 
 function BottomNav() {
@@ -14,6 +15,7 @@ function BottomNav() {
     { path: "/home", icon: House, label: "Home" },
     { path: "/schedule", icon: CalendarDays, label: "Schedule" },
     { path: "/teams", icon: Trophy, label: "Teams" },
+    { path: "/gallery", icon: Images, label: "Gallery" },
     { path: "/menu", icon: UtensilsCrossed, label: "Menu" },
     { path: "/shop", icon: Store, label: "Shop" },
   ];
@@ -21,7 +23,9 @@ function BottomNav() {
   return (
     <nav className="bottom-nav" aria-label="Bottom navigation">
       {navItems.map(({ path, icon: Icon, label }) => {
-        const active = location.pathname === path;
+        const active =
+          location.pathname === path ||
+          location.pathname.startsWith(`${path}/`);
 
         return (
           <Link
@@ -29,6 +33,7 @@ function BottomNav() {
             to={path}
             className={`nav-item ${active ? "active" : ""}`}
             aria-label={label}
+            title={label}
           >
             <Icon size={20} strokeWidth={2.2} />
           </Link>
