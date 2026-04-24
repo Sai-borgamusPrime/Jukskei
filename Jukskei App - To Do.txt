@@ -1,0 +1,19 @@
+Jukskei App - To Do
+
+[] Update Team List and logos
+[] Make calendar clickable + be able to add and display events
+[] Add international test schedule (29th May)
+[] Add program for Sondag 24 Mei 2026
+[] Implement A & B divisions
+[] Implement total score views on each teams tab
+[] Update Menu with actual food and drink items
+[] Lunches are only available on Mon, Tue, and Wed; Display meal days
+[] Add special events button under Menu for steak braai 
+[] Add photo gallery page 
+
+
+Comments
+
+- Final team list by next Monday (27th April)
+- Fredrick and Stella are Admins 
+
