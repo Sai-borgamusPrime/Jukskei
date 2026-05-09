@@ -2,37 +2,52 @@ import { Search, Utensils } from "lucide-react";
 import { useMemo, useState } from "react";
 import BottomNav from "../components/BottomNav";
 import ThemeToggle from "../components/ThemeToggle";
-import menuItems from "../data/menuItems";
-import "./Menu.css";
 import SignOutButton from "../components/SignOutButton/SignOutButton";
+import { usePublicQuery } from "../hooks/usePublicQuery";
+import { getPublicMenuItems } from "../services/publicApi";
+import "./Menu.css";
+
+const defaultCategories = [
+  "All",
+  "Everyday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Special Events",
+];
 
 function Menu() {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const categories = [
-    "All",
-    "Everyday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Special Events",
-  ];
+  const {
+    data: menuItems = [],
+    loading,
+    error,
+  } = usePublicQuery(getPublicMenuItems, [], ["menu_items"]);
+
+  const categories = useMemo(() => {
+    const dynamicCategories = new Set(defaultCategories);
+
+    menuItems.forEach((item) => {
+      item.categories?.forEach((category) => dynamicCategories.add(category));
+    });
+
+    return Array.from(dynamicCategories);
+  }, [menuItems]);
 
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
       const matchesCategory =
         activeCategory === "All" || item.categories?.includes(activeCategory);
 
-      const matchesQuery = item.name
-        .toLowerCase()
-        .includes(query.toLowerCase());
+      const matchesQuery = item.name.toLowerCase().includes(query.toLowerCase());
 
       return matchesCategory && matchesQuery;
     });
-  }, [query, activeCategory]);
+  }, [query, activeCategory, menuItems]);
 
   return (
     <main className="menu-page">
@@ -56,8 +71,7 @@ function Menu() {
             <p className="menu-eyebrow">Tournament Menu</p>
             <h2 className="menu-page-heading">Menu</h2>
             <p className="menu-hero-text">
-              Blaai deur etes, daaglikse spesiale aanbiedinge en kosopsies wat
-              tydens die toernooi beskikbaar is.
+              Blaai deur etes, daaglikse spesiale aanbiedinge en kosopsies wat tydens die toernooi beskikbaar is.
             </p>
           </div>
 
@@ -78,11 +92,7 @@ function Menu() {
                 onChange={(e) => setQuery(e.target.value)}
               />
 
-              <button
-                className="menu-search-icon-btn"
-                type="button"
-                aria-label="Search"
-              >
+              <button className="menu-search-icon-btn" type="button" aria-label="Search">
                 <Search size={16} strokeWidth={2.2} />
               </button>
             </div>
@@ -92,9 +102,7 @@ function Menu() {
                 <button
                   key={category}
                   type="button"
-                  className={`menu-category-btn ${
-                    activeCategory === category ? "active" : ""
-                  }`}
+                  className={`menu-category-btn ${activeCategory === category ? "active" : ""}`}
                   onClick={() => setActiveCategory(category)}
                 >
                   {category}
@@ -104,26 +112,30 @@ function Menu() {
           </div>
 
           <div className="menu-grid">
-            {filteredItems.map((item) => (
-              <article key={item.id} className="menu-card">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="menu-card-image"
-                />
+            {loading ? (
+              <p className="empty-events">Loading menu...</p>
+            ) : error ? (
+              <p className="empty-events">{error}</p>
+            ) : filteredItems.length === 0 ? (
+              <p className="empty-events">No menu items found.</p>
+            ) : (
+              filteredItems.map((item) => (
+                <article key={item.id} className="menu-card">
+                  <img src={item.image} alt={item.name} className="menu-card-image" />
 
-                <div className="menu-card-body">
-                  <h3 className="menu-card-title">{item.name}</h3>
+                  <div className="menu-card-body">
+                    <h3 className="menu-card-title">{item.name}</h3>
 
-                  <p className="menu-card-time">
-                    <span className="menu-time-dot"></span>
-                    {item.DOW}
-                  </p>
+                    <p className="menu-card-time">
+                      <span className="menu-time-dot"></span>
+                      {item.DOW}
+                    </p>
 
-                  <p className="menu-card-price">N${item.price.toFixed(2)}</p>
-                </div>
-              </article>
-            ))}
+                    <p className="menu-card-price">N${item.price.toFixed(2)}</p>
+                  </div>
+                </article>
+              ))
+            )}
           </div>
         </section>
 

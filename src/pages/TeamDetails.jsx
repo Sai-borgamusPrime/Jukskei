@@ -1,38 +1,66 @@
 import { ChevronLeft, Radio } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
-import teams from "../data/teams";
+import { usePublicQuery } from "../hooks/usePublicQuery";
+import { getPublicTeamDetails } from "../services/publicApi";
 import "./TeamDetails.css";
+
+function getDotColor(status) {
+  if (status === "Live") return "green";
+  if (status === "Upcoming") return "yellow";
+  if (status === "Cancelled") return "red";
+  return "black";
+}
 
 function TeamDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("past");
 
-  const team = useMemo(() => {
-    return teams.find((item) => item.slug === slug);
-  }, [slug]);
+  const loader = useCallback(() => getPublicTeamDetails(slug), [slug]);
+
+  const {
+    data,
+    loading,
+    error,
+  } = usePublicQuery(loader, [slug], ["teams", "matches"]);
+
+  const team = data?.team;
+  const matches = data?.matches || [];
 
   const filteredSchedule = useMemo(() => {
-    if (!team) return [];
+    return matches
+      .filter((item) => {
+        if (activeTab === "live") {
+          return item.status === "Live";
+        }
 
-    return team.schedule.filter((item) => {
-      const status = item.status?.toLowerCase();
+        return item.status !== "Live";
+      })
+      .map((item) => ({
+        id: item.id,
+        datetime: item.datetime,
+        match: item.title,
+        dotColor: getDotColor(item.status),
+      }));
+  }, [matches, activeTab]);
 
-      if (activeTab === "live") {
-        return status === "live";
-      }
-
-      return status !== "live";
-    });
-  }, [team, activeTab]);
-
-  if (!team) {
+  if (loading) {
     return (
       <main className="team-details-page">
         <section className="team-details-shell">
-          <p className="team-not-found">Team not found.</p>
+          <p className="team-not-found">Loading team...</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (error || !team) {
+    return (
+      <main className="team-details-page">
+        <section className="team-details-shell">
+          <p className="team-not-found">{error || "Team not found."}</p>
         </section>
       </main>
     );
@@ -55,11 +83,7 @@ function TeamDetails() {
 
           <div className="team-hero-content">
             <div className="team-hero-logo-card">
-              <img
-                src={team.bannerLogo}
-                alt={team.name}
-                className="team-hero-logo"
-              />
+              <img src={team.bannerLogo} alt={team.name} className="team-hero-logo" />
             </div>
 
             <div className="team-hero-text">
@@ -104,8 +128,7 @@ function TeamDetails() {
               </div>
 
               <span className="team-match-count">
-                {filteredSchedule.length}{" "}
-                {filteredSchedule.length === 1 ? "match" : "matches"}
+                {filteredSchedule.length} {filteredSchedule.length === 1 ? "match" : "matches"}
               </span>
             </div>
 

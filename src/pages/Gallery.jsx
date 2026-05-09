@@ -1,15 +1,21 @@
 import { useState } from "react";
-import "./Gallery.css";
-import galleryImages from "../data/galleryImages";
+import { ArrowLeft, Images, X } from "lucide-react";
 import BottomNav from "../components/BottomNav";
-import { Upload, Trash2, Star, X, ArrowLeft, Images } from "lucide-react";
 import ThemeToggle from "../components/ThemeToggle";
 import SignOutButton from "../components/SignOutButton/SignOutButton";
+import { usePublicQuery } from "../hooks/usePublicQuery";
+import { getPublicGallery } from "../services/publicApi";
+import "./Gallery.css";
 
 function Gallery() {
-  const [categories, setCategories] = useState(galleryImages);
   const [activeCategoryId, setActiveCategoryId] = useState(null);
   const [fullscreenImage, setFullscreenImage] = useState(null);
+
+  const {
+    data: categories = [],
+    loading,
+    error,
+  } = usePublicQuery(getPublicGallery, [], ["gallery_categories", "gallery_images"]);
 
   const activeCategory = categories.find((cat) => cat.id === activeCategoryId);
 
@@ -17,69 +23,6 @@ function Gallery() {
     (total, category) => total + category.images.length,
     0,
   );
-
-  const handleUpload = (categoryId, event) => {
-    const files = Array.from(event.target.files);
-
-    if (files.length === 0) return;
-
-    const newImages = files.map((file) => ({
-      id: crypto.randomUUID(),
-      title: file.name,
-      image: URL.createObjectURL(file),
-      isCover: false,
-    }));
-
-    setCategories((prev) =>
-      prev.map((category) =>
-        category.id === categoryId
-          ? {
-              ...category,
-              images: [...category.images, ...newImages],
-            }
-          : category,
-      ),
-    );
-
-    event.target.value = "";
-  };
-
-  const setCoverImage = (categoryId, imageId) => {
-    setCategories((prev) =>
-      prev.map((category) =>
-        category.id === categoryId
-          ? {
-              ...category,
-              coverImage: category.images.find((img) => img.id === imageId)
-                ?.image,
-            }
-          : category,
-      ),
-    );
-  };
-
-  const deleteImage = (categoryId, imageId) => {
-    setCategories((prev) =>
-      prev.map((category) => {
-        if (category.id !== categoryId) return category;
-
-        const imageToDelete = category.images.find((img) => img.id === imageId);
-        const updatedImages = category.images.filter(
-          (img) => img.id !== imageId,
-        );
-
-        const wasCover = category.coverImage === imageToDelete?.image;
-
-        return {
-          ...category,
-          images: updatedImages,
-          coverImage: wasCover
-            ? updatedImages[0]?.image || category.fallbackImage
-            : category.coverImage,
-        };
-      }),
-    );
-  };
 
   return (
     <main className="gallery-page">
@@ -114,33 +57,37 @@ function Gallery() {
               </div>
             </section>
 
-            <section className="gallery-grid">
-              {categories.map((item) => (
-                <button
-                  key={item.id}
-                  className="gallery-card"
-                  onClick={() => setActiveCategoryId(item.id)}
-                  type="button"
-                >
-                  <img src={item.coverImage} alt={item.title} />
+            {loading ? (
+              <p className="empty-gallery">Loading gallery...</p>
+            ) : error ? (
+              <p className="empty-gallery">{error}</p>
+            ) : categories.length === 0 ? (
+              <p className="empty-gallery">No gallery categories found.</p>
+            ) : (
+              <section className="gallery-grid">
+                {categories.map((item) => (
+                  <button
+                    key={item.id}
+                    className="gallery-card"
+                    onClick={() => setActiveCategoryId(item.id)}
+                    type="button"
+                  >
+                    <img src={item.coverImage} alt={item.title} />
 
-                  <div className="gallery-card-overlay">
-                    <div>
-                      <h2>{item.title}</h2>
-                      <p>{item.images.length} photos</p>
+                    <div className="gallery-card-overlay">
+                      <div>
+                        <h2>{item.title}</h2>
+                        <p>{item.images.length} photos</p>
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
-            </section>
+                  </button>
+                ))}
+              </section>
+            )}
           </>
         ) : (
           <>
-            <button
-              className="gallery-back-button"
-              onClick={() => setActiveCategoryId(null)}
-              type="button"
-            >
+            <button className="gallery-back-button" onClick={() => setActiveCategoryId(null)} type="button">
               <ArrowLeft size={18} />
               Back to Gallery
             </button>
@@ -150,39 +97,15 @@ function Gallery() {
                 <p className="gallery-eyebrow">Category</p>
                 <h2 className="page-heading">{activeCategory.title}</h2>
                 <p className="gallery-subtitle">
-                  Upload, preview, delete, or set a cover image.
+                  Preview tournament photos uploaded from the admin portal.
                 </p>
               </div>
-
-              <label className="upload-button">
-                <Upload size={17} />
-                Upload
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(event) => handleUpload(activeCategory.id, event)}
-                />
-              </label>
             </section>
 
             <section className="category-image-grid">
               {activeCategory.images.length === 0 ? (
                 <div className="empty-gallery">
                   <p>No images in this category yet.</p>
-
-                  <label className="upload-button">
-                    <Upload size={17} />
-                    Upload Images
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={(event) =>
-                        handleUpload(activeCategory.id, event)
-                      }
-                    />
-                  </label>
                 </div>
               ) : (
                 activeCategory.images.map((image) => {
@@ -190,37 +113,8 @@ function Gallery() {
 
                   return (
                     <article key={image.id} className="category-image-card">
-                      <img
-                        src={image.image}
-                        alt={image.title}
-                        onClick={() => setFullscreenImage(image)}
-                      />
-
+                      <img src={image.image} alt={image.title} onClick={() => setFullscreenImage(image)} />
                       {isCover && <span className="cover-badge">Cover</span>}
-
-                      <div className="image-actions">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCoverImage(activeCategory.id, image.id)
-                          }
-                          title="Set as cover"
-                          aria-label="Set as cover"
-                        >
-                          <Star size={16} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            deleteImage(activeCategory.id, image.id)
-                          }
-                          title="Delete image"
-                          aria-label="Delete image"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
                     </article>
                   );
                 })
