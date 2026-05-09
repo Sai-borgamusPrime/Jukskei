@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabaseClient";
 import "./Splash2.css";
 
 function Splash2() {
   const navigate = useNavigate();
+
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [authMode, setAuthMode] = useState(null);
+  const [authError, setAuthError] = useState("");
+  const [authMessage, setAuthMessage] = useState("");
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   const slides = useMemo(
     () => [
@@ -47,7 +52,7 @@ function Splash2() {
 
     const handleEscape = (event) => {
       if (event.key === "Escape") {
-        setAuthMode(null);
+        closeAuthModal();
       }
     };
 
@@ -98,17 +103,153 @@ function Splash2() {
 
   const openAuthModal = (mode) => {
     setAuthMode(mode);
+    setAuthError("");
+    setAuthMessage("");
   };
 
   const closeAuthModal = () => {
     setAuthMode(null);
+    setAuthError("");
+    setAuthMessage("");
+    setIsAuthLoading(false);
   };
 
-  const handleAuthSubmit = (event) => {
+  const getUserRedirectPath = async (userId) => {
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Profile role check failed:", error.message);
+      return "/home";
+    }
+
+    return profile?.role === "super_admin" ? "/admin" : "/home";
+  };
+
+  const handleAuthSubmit = async (event) => {
     event.preventDefault();
 
-    // Replace this with your real Supabase/Firebase/API login/signup logic later.
-    navigate("/home");
+    if (isAuthLoading) return;
+
+    setAuthError("");
+    setAuthMessage("");
+    setIsAuthLoading(true);
+
+    const formData = new FormData(event.currentTarget);
+
+    const email = String(formData.get("email") || "")
+      .trim()
+      .toLowerCase();
+
+    const password = String(formData.get("password") || "");
+    const fullName = String(formData.get("fullName") || "").trim();
+    const confirmPassword = String(formData.get("confirmPassword") || "");
+
+    if (!email || !password) {
+      setAuthError("Please enter your email address and password.");
+      setIsAuthLoading(false);
+      return;
+    }
+
+    if (authMode === "signup" && password !== confirmPassword) {
+      setAuthError("Passwords do not match.");
+      setIsAuthLoading(false);
+      return;
+    }
+
+    try {
+      if (authMode === "login") {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+
+        const userId = data?.user?.id;
+
+        if (!userId) {
+          throw new Error("Login succeeded, but no user profile was returned.");
+        }
+
+        const redirectPath = await getUserRedirectPath(userId);
+
+        closeAuthModal();
+        navigate(redirectPath, { replace: true });
+        return;
+      }
+
+      if (authMode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+            },
+          },
+        });
+
+        if (error) throw error;
+
+        const userId = data?.user?.id;
+        const session = data?.session;
+
+        if (!session) {
+          setAuthMessage(
+            "Account created. Please check your email to confirm your account, then log in.",
+          );
+          setIsAuthLoading(false);
+          return;
+        }
+
+        if (!userId) {
+          throw new Error("Account created, but no user profile was returned.");
+        }
+
+        const redirectPath = await getUserRedirectPath(userId);
+
+        closeAuthModal();
+        navigate(redirectPath, { replace: true });
+      }
+    } catch (error) {
+      setAuthError(error.message || "Something went wrong. Please try again.");
+      setIsAuthLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setAuthError("");
+    setAuthMessage("");
+
+    const emailInput = document.querySelector("input[name='email']");
+    const email = emailInput?.value?.trim()?.toLowerCase();
+
+    if (!email) {
+      setAuthError(
+        "Enter your email address first, then click forgot password.",
+      );
+      return;
+    }
+
+    setIsAuthLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/splash2`,
+      });
+
+      if (error) throw error;
+
+      setAuthMessage("Password reset email sent. Please check your inbox.");
+    } catch (error) {
+      setAuthError(error.message || "Could not send password reset email.");
+    } finally {
+      setIsAuthLoading(false);
+    }
   };
 
   return (
@@ -196,12 +337,14 @@ function Splash2() {
               className="auth-close-button"
               onClick={closeAuthModal}
               aria-label="Close authentication modal"
+              disabled={isAuthLoading}
             >
               ×
             </button>
 
             <div className="auth-brand">
               <img src="/logo.png" alt="Jukskei Tournament Logo" />
+
               <div>
                 <p>Jukskei Tournament</p>
                 <h2 id="auth-modal-title">
@@ -213,8 +356,11 @@ function Splash2() {
             <div className="auth-tabs" role="tablist" aria-label="Auth options">
               <button
                 type="button"
-                className={`auth-tab ${authMode === "login" ? "is-active" : ""}`}
-                onClick={() => setAuthMode("login")}
+                className={`auth-tab ${
+                  authMode === "login" ? "is-active" : ""
+                }`}
+                onClick={() => openAuthModal("login")}
+                disabled={isAuthLoading}
               >
                 Login
               </button>
@@ -224,13 +370,26 @@ function Splash2() {
                 className={`auth-tab ${
                   authMode === "signup" ? "is-active" : ""
                 }`}
-                onClick={() => setAuthMode("signup")}
+                onClick={() => openAuthModal("signup")}
+                disabled={isAuthLoading}
               >
                 Sign up
               </button>
             </div>
 
             <form className="auth-form" onSubmit={handleAuthSubmit}>
+              {authError && (
+                <p className="auth-error-message" role="alert">
+                  {authError}
+                </p>
+              )}
+
+              {authMessage && (
+                <p className="auth-success-message" role="status">
+                  {authMessage}
+                </p>
+              )}
+
               {authMode === "signup" && (
                 <label className="auth-field">
                   <span>Full name</span>
@@ -239,6 +398,7 @@ function Splash2() {
                     name="fullName"
                     placeholder="Enter your full name"
                     autoComplete="name"
+                    disabled={isAuthLoading}
                     required
                   />
                 </label>
@@ -251,6 +411,7 @@ function Splash2() {
                   name="email"
                   placeholder="Enter your email address"
                   autoComplete="email"
+                  disabled={isAuthLoading}
                   required
                 />
               </label>
@@ -264,6 +425,7 @@ function Splash2() {
                   autoComplete={
                     authMode === "login" ? "current-password" : "new-password"
                   }
+                  disabled={isAuthLoading}
                   required
                 />
               </label>
@@ -276,6 +438,7 @@ function Splash2() {
                     name="confirmPassword"
                     placeholder="Confirm your password"
                     autoComplete="new-password"
+                    disabled={isAuthLoading}
                     required
                   />
                 </label>
@@ -284,25 +447,40 @@ function Splash2() {
               {authMode === "login" ? (
                 <div className="auth-options-row">
                   <label className="auth-checkbox">
-                    <input type="checkbox" />
+                    <input type="checkbox" disabled={isAuthLoading} />
                     <span>Remember me</span>
                   </label>
 
-                  <button type="button" className="auth-text-button">
+                  <button
+                    type="button"
+                    className="auth-text-button"
+                    onClick={handleForgotPassword}
+                    disabled={isAuthLoading}
+                  >
                     Forgot password?
                   </button>
                 </div>
               ) : (
                 <label className="auth-checkbox auth-terms">
-                  <input type="checkbox" required />
+                  <input type="checkbox" disabled={isAuthLoading} required />
                   <span>
                     I agree to the tournament app terms and privacy policy.
                   </span>
                 </label>
               )}
 
-              <button type="submit" className="auth-submit-button">
-                {authMode === "login" ? "Login to dashboard" : "Create account"}
+              <button
+                type="submit"
+                className="auth-submit-button"
+                disabled={isAuthLoading}
+              >
+                {isAuthLoading
+                  ? authMode === "login"
+                    ? "Logging in..."
+                    : "Creating account..."
+                  : authMode === "login"
+                    ? "Login to app"
+                    : "Create account"}
               </button>
             </form>
 
@@ -313,8 +491,9 @@ function Splash2() {
               <button
                 type="button"
                 onClick={() =>
-                  setAuthMode(authMode === "login" ? "signup" : "login")
+                  openAuthModal(authMode === "login" ? "signup" : "login")
                 }
+                disabled={isAuthLoading}
               >
                 {authMode === "login" ? "Create an account" : "Login instead"}
               </button>
