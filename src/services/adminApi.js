@@ -403,3 +403,69 @@ export async function getDashboardStats() {
     upcomingEvents: scheduleEvents.slice(0, 6),
   };
 }
+
+export async function listDivisions() {
+  const { data, error } = await supabase
+    .from("team_divisions")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+
+  return data || [];
+}
+
+export async function saveDivision(payload, id = null) {
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData?.user?.id || null;
+
+  const cleanPayload = {
+    code: String(payload.code || "")
+      .trim()
+      .toUpperCase(),
+    name: String(payload.name || "").trim(),
+    sort_order: Number(payload.sort_order || 0),
+    is_active: payload.is_active !== false,
+    updated_by: userId,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (!cleanPayload.code || !cleanPayload.name) {
+    throw new Error("Division name and code are required.");
+  }
+
+  if (id) {
+    const { data, error } = await supabase
+      .from("team_divisions")
+      .update(cleanPayload)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return data;
+  }
+
+  const { data, error } = await supabase
+    .from("team_divisions")
+    .insert({
+      ...cleanPayload,
+      created_by: userId,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function deleteDivision(id) {
+  const { error } = await supabase.from("team_divisions").delete().eq("id", id);
+
+  if (error) throw error;
+
+  return true;
+}

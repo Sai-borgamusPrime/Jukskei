@@ -343,3 +343,16 @@ export function subscribeToPublicTables(tables, onChange) {
     supabase.removeChannel(channel);
   };
 }
+
+export async function getPublicDivisions() {
+  const { data, error } = await supabase
+    .from("team_divisions")
+    .select("id, code, name, sort_order, is_active")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+
+  return data || [];
+}

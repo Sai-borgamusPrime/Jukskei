@@ -1,10 +1,10 @@
 import { Search, SlidersHorizontal, Trophy } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
 import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
-import { getPublicTeams } from "../services/publicApi";
+import { getPublicDivisions, getPublicTeams } from "../services/publicApi";
 import "./Teams.css";
 
 function Teams() {
@@ -14,22 +14,39 @@ function Teams() {
 
   const {
     data: teams = [],
-    loading,
-    error,
-  } = usePublicQuery(getPublicTeams, [], ["teams"]);
+    loading: teamsLoading,
+    error: teamsError,
+  } = usePublicQuery(getPublicTeams, [], ["teams", "team_divisions"]);
 
-  const divisions = useMemo(() => {
-    const values = new Set(teams.map((team) => team.division).filter(Boolean));
-    return ["All Teams", ...Array.from(values).sort()];
-  }, [teams]);
+  const {
+    data: divisions = [],
+    loading: divisionsLoading,
+    error: divisionsError,
+  } = usePublicQuery(getPublicDivisions, [], ["team_divisions"]);
+
+  const divisionCodes = useMemo(
+    () => divisions.map((division) => division.code),
+    [divisions],
+  );
+
+  useEffect(() => {
+    if (activeTab !== "All Teams" && !divisionCodes.includes(activeTab)) {
+      setActiveTab("All Teams");
+    }
+  }, [activeTab, divisionCodes]);
 
   const filteredTeams = useMemo(() => {
     return teams
-      .filter(
-        (team) =>
-          team.name.toLowerCase().includes(query.toLowerCase()) &&
-          (activeTab === "All Teams" || team.division === activeTab),
-      )
+      .filter((team) => {
+        const matchesSearch = team.name
+          .toLowerCase()
+          .includes(query.toLowerCase());
+
+        const matchesDivision =
+          activeTab === "All Teams" || team.division === activeTab;
+
+        return matchesSearch && matchesDivision;
+      })
       .sort((a, b) => b.totalScore - a.totalScore);
   }, [query, activeTab, teams]);
 
@@ -46,6 +63,9 @@ function Teams() {
     if (index === 2) return "Bronze";
     return "Score";
   };
+
+  const isLoading = teamsLoading || divisionsLoading;
+  const error = teamsError || divisionsError;
 
   return (
     <main className="teams-page">
@@ -80,14 +100,22 @@ function Teams() {
         <section className="teams-section">
           <div className="teams-toolbar">
             <div className="tabs" role="tablist" aria-label="Team divisions">
+              <button
+                type="button"
+                className={`tab ${activeTab === "All Teams" ? "active" : ""}`}
+                onClick={() => setActiveTab("All Teams")}
+              >
+                All
+              </button>
+
               {divisions.map((division) => (
                 <button
-                  key={division}
+                  key={division.id}
                   type="button"
-                  className={`tab ${activeTab === division ? "active" : ""}`}
-                  onClick={() => setActiveTab(division)}
+                  className={`tab ${activeTab === division.code ? "active" : ""}`}
+                  onClick={() => setActiveTab(division.code)}
                 >
-                  {division === "All Teams" ? "All" : `Division ${division}`}
+                  {division.name}
                 </button>
               ))}
             </div>
@@ -119,12 +147,12 @@ function Teams() {
           </div>
 
           <div className="teams-list">
-            {loading ? (
-              <p className="team-empty-state">Loading teams...</p>
+            {isLoading ? (
+              <p className="admin-empty">Loading teams...</p>
             ) : error ? (
-              <p className="team-empty-state">{error}</p>
+              <p className="admin-error">{error}</p>
             ) : filteredTeams.length === 0 ? (
-              <p className="team-empty-state">No teams found.</p>
+              <p className="admin-empty">No teams found.</p>
             ) : (
               filteredTeams.map((team, index) => (
                 <button
@@ -140,23 +168,28 @@ function Teams() {
                   <div className="team-main">
                     <div className="team-logo-wrap">
                       <img
-                        src={team.logo}
+                        src={team.logo || "/logo.webp"}
                         alt={team.name}
                         className="team-logo"
+                        onError={(event) => {
+                          event.currentTarget.src = "/logo.webp";
+                        }}
                       />
                     </div>
 
                     <div className="team-text">
                       <span className="team-row-name">{team.name}</span>
                       <span className="team-meta">
-                        Division {team.division}
+                        {team.divisionName || `Division ${team.division}`}
                       </span>
                     </div>
                   </div>
 
                   <div className="score-area">
                     {index < 3 && <Trophy size={13} strokeWidth={2.5} />}
+
                     <span className="score-label">{getScoreLabel(index)}</span>
+
                     <span className="team-score-badge">{team.totalScore}</span>
                   </div>
                 </button>
