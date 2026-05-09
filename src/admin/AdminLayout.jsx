@@ -5,7 +5,6 @@ import {
   Home,
   LayoutDashboard,
   ShoppingBag,
-  Trophy,
   Utensils,
   Users,
   Radio,

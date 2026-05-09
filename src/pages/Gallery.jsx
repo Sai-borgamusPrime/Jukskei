@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Images, X } from "lucide-react";
 import BottomNav from "../components/BottomNav";
-import ThemeToggle from "../components/ThemeToggle";
 import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicGallery } from "../services/publicApi";
@@ -15,7 +14,11 @@ function Gallery() {
     data: categories = [],
     loading,
     error,
-  } = usePublicQuery(getPublicGallery, [], ["gallery_categories", "gallery_images"]);
+  } = usePublicQuery(
+    getPublicGallery,
+    [],
+    ["gallery_categories", "gallery_images"],
+  );
 
   const activeCategory = categories.find((cat) => cat.id === activeCategoryId);
 
@@ -34,7 +37,6 @@ function Gallery() {
           </div>
 
           <div>
-            <ThemeToggle />
             <SignOutButton />
           </div>
         </header>
@@ -87,7 +89,11 @@ function Gallery() {
           </>
         ) : (
           <>
-            <button className="gallery-back-button" onClick={() => setActiveCategoryId(null)} type="button">
+            <button
+              className="gallery-back-button"
+              onClick={() => setActiveCategoryId(null)}
+              type="button"
+            >
               <ArrowLeft size={18} />
               Back to Gallery
             </button>
@@ -113,7 +119,11 @@ function Gallery() {
 
                   return (
                     <article key={image.id} className="category-image-card">
-                      <img src={image.image} alt={image.title} onClick={() => setFullscreenImage(image)} />
+                      <img
+                        src={image.image}
+                        alt={image.title}
+                        onClick={() => setFullscreenImage(image)}
+                      />
                       {isCover && <span className="cover-badge">Cover</span>}
                     </article>
                   );

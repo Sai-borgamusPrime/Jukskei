@@ -2,7 +2,6 @@ import { Search, SlidersHorizontal, Trophy } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
-import ThemeToggle from "../components/ThemeToggle";
 import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicTeams } from "../services/publicApi";
@@ -58,7 +57,6 @@ function Teams() {
           </div>
 
           <div>
-            <ThemeToggle />
             <SignOutButton />
           </div>
         </header>
@@ -68,7 +66,8 @@ function Teams() {
             <p className="teams-eyebrow">Tournament Rankings</p>
             <h2 className="teams-page-heading">Teams</h2>
             <p className="teams-hero-text">
-              Blaai deur afdelings, soek spanne en sien ranglyste gebaseer op totale telling.
+              Blaai deur afdelings, soek spanne en sien ranglyste gebaseer op
+              totale telling.
             </p>
           </div>
 
@@ -101,11 +100,19 @@ function Teams() {
                 onChange={(e) => setQuery(e.target.value)}
               />
 
-              <button className="search-icon-btn" type="button" aria-label="Filter">
+              <button
+                className="search-icon-btn"
+                type="button"
+                aria-label="Filter"
+              >
                 <SlidersHorizontal size={16} />
               </button>
 
-              <button className="search-icon-btn" type="button" aria-label="Search">
+              <button
+                className="search-icon-btn"
+                type="button"
+                aria-label="Search"
+              >
                 <Search size={16} />
               </button>
             </div>
@@ -132,12 +139,18 @@ function Teams() {
 
                   <div className="team-main">
                     <div className="team-logo-wrap">
-                      <img src={team.logo} alt={team.name} className="team-logo" />
+                      <img
+                        src={team.logo}
+                        alt={team.name}
+                        className="team-logo"
+                      />
                     </div>
 
                     <div className="team-text">
                       <span className="team-row-name">{team.name}</span>
-                      <span className="team-meta">Division {team.division}</span>
+                      <span className="team-meta">
+                        Division {team.division}
+                      </span>
                     </div>
                   </div>
 

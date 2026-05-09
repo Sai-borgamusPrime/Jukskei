@@ -3,11 +3,10 @@ Jukskei App - To Do
 [v] Create DB and add user authentication 
 [v] Integrate live scoring
 [v] Add all data to DB
-[] Optimize images for app 
-[] Fix scrollable area
-[] Make app downloadable 
-[] Adjust positioning of buttons
-[] Add dark/light mode near refresh button on admin dashbaord  
+[v] Optimize images for app 
+[v] Fix scrollable area
+[v] Make app downloadable 
+[v] Adjust positioning of buttons
 [] Add divisions for Namibian Teams (A1 To A3)
 [] Add divisions for Namibia (B1 to B9)
 [] Add referees section to teams

@@ -1,8 +1,8 @@
 .floating-admin-access {
   position: fixed;
   right: 16px;
-  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
-  z-index: 9999;
+  bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+  z-index: 80;
   min-height: 42px;
   padding: 0 14px;
   border: 1px solid rgba(47, 111, 255, 0.18);
@@ -50,9 +50,34 @@
   transform: translateY(0);
 }
 
+/* Larger screens: keep it above the navbar, just move it slightly inward */
 @media (min-width: 768px) {
   .floating-admin-access {
     right: 24px;
-    bottom: 24px;
+    bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Very large screens: place it neatly outside the app card area if possible */
+@media (min-width: 1200px) {
+  .floating-admin-access {
+    right: 32px;
+    bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .floating-admin-access {
+    right: 12px;
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 0.72rem;
+  }
+
+  .floating-admin-access span {
+    width: 22px;
+    height: 22px;
   }
 }

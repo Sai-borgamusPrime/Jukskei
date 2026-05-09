@@ -1,7 +1,6 @@
 import { Search, ShoppingBag } from "lucide-react";
 import { useMemo, useState } from "react";
 import BottomNav from "../components/BottomNav";
-import ThemeToggle from "../components/ThemeToggle";
 import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicShopItems } from "../services/publicApi";
@@ -18,14 +17,20 @@ function Shop() {
   } = usePublicQuery(getPublicShopItems, [], ["shop_items"]);
 
   const categories = useMemo(() => {
-    const values = new Set(["All", ...shopItems.map((item) => item.category).filter(Boolean)]);
+    const values = new Set([
+      "All",
+      ...shopItems.map((item) => item.category).filter(Boolean),
+    ]);
     return Array.from(values);
   }, [shopItems]);
 
   const filteredItems = useMemo(() => {
     return shopItems.filter((item) => {
-      const matchesCategory = activeCategory === "All" || item.category === activeCategory;
-      const matchesQuery = item.name.toLowerCase().includes(query.toLowerCase());
+      const matchesCategory =
+        activeCategory === "All" || item.category === activeCategory;
+      const matchesQuery = item.name
+        .toLowerCase()
+        .includes(query.toLowerCase());
 
       return matchesCategory && matchesQuery;
     });
@@ -42,7 +47,6 @@ function Shop() {
 
           <div className="shop-header-actions">
             <div>
-              <ThemeToggle />
               <SignOutButton />
             </div>
           </div>
@@ -53,7 +57,8 @@ function Shop() {
             <p className="shop-eyebrow">Gift Store</p>
             <h2 className="shop-page-heading">Gift Shop</h2>
             <p className="shop-hero-text">
-              Blaai deur amptelike geleentheidsware, aandenkinge en toernooi-bykomstighede.
+              Blaai deur amptelike geleentheidsware, aandenkinge en
+              toernooi-bykomstighede.
             </p>
           </div>
 
@@ -74,7 +79,11 @@ function Shop() {
                 onChange={(e) => setQuery(e.target.value)}
               />
 
-              <button className="shop-search-icon-btn" type="button" aria-label="Search">
+              <button
+                className="shop-search-icon-btn"
+                type="button"
+                aria-label="Search"
+              >
                 <Search size={16} strokeWidth={2.2} />
               </button>
             </div>
@@ -104,14 +113,20 @@ function Shop() {
               filteredItems.map((item) => (
                 <article key={item.id} className="shop-card">
                   <div className="shop-image-wrap">
-                    <img src={item.image} alt={item.name} className="shop-card-image" />
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="shop-card-image"
+                    />
                   </div>
 
                   <div className="shop-card-body">
                     <p className="shop-card-price">N${item.price.toFixed(2)}</p>
                     <h3 className="shop-card-title">{item.subtitle}</h3>
 
-                    {item.details && <p className="shop-card-details">{item.details}</p>}
+                    {item.details && (
+                      <p className="shop-card-details">{item.details}</p>
+                    )}
                   </div>
                 </article>
               ))

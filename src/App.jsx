@@ -25,6 +25,8 @@ import { supabase } from "./lib/supabaseClient";
 
 import AdminAccessButton from "./components/AdminAccessButton/AdminAccessButton";
 
+import PWAInstallPrompt from "./components/PWAInstallPrompt/PWAInstallPrompt";
+
 function Placeholder({ title }) {
   return (
     <main style={{ minHeight: "100vh", padding: "2rem" }}>
@@ -233,6 +235,7 @@ function App() {
       </Routes>
 
       <AdminAccessButton />
+      <PWAInstallPrompt />
     </>
   );
 }

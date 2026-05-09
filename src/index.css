@@ -4,6 +4,59 @@
   box-sizing: border-box;
 }
 
+:root,
+:root.light-mode {
+  --page-bg: #f4f7fb;
+  --surface-bg: #ffffff;
+  --card-bg: #ffffff;
+  --text-main: #101828;
+  --text-muted: #667085;
+  --soft-border: rgba(0, 26, 77, 0.1);
+  --border-color: rgba(0, 26, 77, 0.1);
+  --shadow-soft: rgba(0, 26, 77, 0.08);
+
+  --admin-bg: #f4f7fb;
+  --admin-sidebar-bg: #001a4d;
+  --admin-sidebar-text: #ffffff;
+  --admin-surface: #ffffff;
+  --admin-card: #ffffff;
+  --admin-text: #101828;
+  --admin-muted: #667085;
+  --admin-border: rgba(0, 26, 77, 0.1);
+  --admin-blue: #2f6fff;
+  --admin-blue-soft: rgba(47, 111, 255, 0.1);
+  --admin-danger: #b42318;
+}
+
+:root.dark-mode {
+  --page-bg: #07111f;
+  --surface-bg: #0f1b2d;
+  --card-bg: #111f35;
+  --text-main: #f8fafc;
+  --text-muted: #aab4c5;
+  --soft-border: rgba(255, 255, 255, 0.1);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --shadow-soft: rgba(0, 0, 0, 0.32);
+
+  --admin-bg: #07111f;
+  --admin-sidebar-bg: #020817;
+  --admin-sidebar-text: #ffffff;
+  --admin-surface: #0f1b2d;
+  --admin-card: #111f35;
+  --admin-text: #f8fafc;
+  --admin-muted: #aab4c5;
+  --admin-border: rgba(255, 255, 255, 0.12);
+  --admin-blue: #6ea2ff;
+  --admin-blue-soft: rgba(110, 162, 255, 0.14);
+  --admin-danger: #ff8a8a;
+}
+
+html,
+body {
+  background: var(--page-bg);
+  color: var(--text-main);
+}
+
 html,
 body,
 #root {

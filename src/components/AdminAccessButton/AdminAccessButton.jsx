@@ -11,7 +11,6 @@ function AdminAccessButton() {
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   const hiddenRoutes = ["/", "/splash2", "/logout"];
-
   const shouldHide = hiddenRoutes.includes(location.pathname) || isAdminRoute;
 
   if (shouldHide) {

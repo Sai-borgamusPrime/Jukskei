@@ -3,31 +3,24 @@ import useTheme from "../hooks/useTheme";
 import "./ThemeToggle.css";
 
 function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-
-  const isDarkMode = theme === "dark";
-
-  const toggleTheme = () => {
-    setTheme(isDarkMode ? "light" : "dark");
-  };
+  const { theme, isDark } = useTheme();
 
   return (
-    <button
-      type="button"
-      className="theme-toggle-button"
-      aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-      onClick={toggleTheme}
+    <div
+      className="theme-system-indicator"
+      title={`Using system ${theme} mode`}
+      aria-label={`Using system ${theme} mode`}
     >
-      <span className="theme-toggle-track">
-        <span className="theme-toggle-thumb">
-          {isDarkMode ? (
-            <Moon size={14} strokeWidth={2.4} />
-          ) : (
-            <Sun size={14} strokeWidth={2.4} />
-          )}
-        </span>
+      <span className="theme-system-icon" aria-hidden="true">
+        {isDark ? (
+          <Moon size={15} strokeWidth={2.4} />
+        ) : (
+          <Sun size={15} strokeWidth={2.4} />
+        )}
       </span>
-    </button>
+
+      <span className="theme-system-text">System</span>
+    </div>
   );
 }
 

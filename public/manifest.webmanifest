@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "Jukskei Tournament",
+  "short_name": "Jukskei",
+  "description": "Follow teams, matches, schedules, scores, menus, shop items and gallery moments for the Jukskei tournament.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#001a4d",
+  "theme_color": "#001a4d",
+  "icons": [
+    {
+      "src": "/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

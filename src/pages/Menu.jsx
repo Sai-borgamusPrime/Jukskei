@@ -1,7 +1,6 @@
 import { Search, Utensils } from "lucide-react";
 import { useMemo, useState } from "react";
 import BottomNav from "../components/BottomNav";
-import ThemeToggle from "../components/ThemeToggle";
 import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicMenuItems } from "../services/publicApi";
@@ -43,7 +42,9 @@ function Menu() {
       const matchesCategory =
         activeCategory === "All" || item.categories?.includes(activeCategory);
 
-      const matchesQuery = item.name.toLowerCase().includes(query.toLowerCase());
+      const matchesQuery = item.name
+        .toLowerCase()
+        .includes(query.toLowerCase());
 
       return matchesCategory && matchesQuery;
     });
@@ -60,7 +61,6 @@ function Menu() {
 
           <div className="menu-header-actions">
             <div>
-              <ThemeToggle />
               <SignOutButton />
             </div>
           </div>
@@ -71,7 +71,8 @@ function Menu() {
             <p className="menu-eyebrow">Tournament Menu</p>
             <h2 className="menu-page-heading">Menu</h2>
             <p className="menu-hero-text">
-              Blaai deur etes, daaglikse spesiale aanbiedinge en kosopsies wat tydens die toernooi beskikbaar is.
+              Blaai deur etes, daaglikse spesiale aanbiedinge en kosopsies wat
+              tydens die toernooi beskikbaar is.
             </p>
           </div>
 
@@ -92,7 +93,11 @@ function Menu() {
                 onChange={(e) => setQuery(e.target.value)}
               />
 
-              <button className="menu-search-icon-btn" type="button" aria-label="Search">
+              <button
+                className="menu-search-icon-btn"
+                type="button"
+                aria-label="Search"
+              >
                 <Search size={16} strokeWidth={2.2} />
               </button>
             </div>
@@ -121,7 +126,11 @@ function Menu() {
             ) : (
               filteredItems.map((item) => (
                 <article key={item.id} className="menu-card">
-                  <img src={item.image} alt={item.name} className="menu-card-image" />
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="menu-card-image"
+                  />
 
                   <div className="menu-card-body">
                     <h3 className="menu-card-title">{item.name}</h3>

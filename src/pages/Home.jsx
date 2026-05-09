@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Radio } from "lucide-react";
 import BottomNav from "../components/BottomNav";
-import ThemeToggle from "../components/ThemeToggle";
 import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicMatches } from "../services/publicApi";
@@ -23,7 +22,11 @@ function MatchCard({ match }) {
 
       <div className="match-card-body">
         <div className="team-block">
-          <img src={match.teamA.logo} alt={match.teamA.name} className="team-logo" />
+          <img
+            src={match.teamA.logo}
+            alt={match.teamA.name}
+            className="team-logo"
+          />
           <span className="team-name">{match.teamA.name}</span>
         </div>
 
@@ -34,12 +37,20 @@ function MatchCard({ match }) {
         </div>
 
         <div className="team-block">
-          <img src={match.teamB.logo} alt={match.teamB.name} className="team-logo" />
+          <img
+            src={match.teamB.logo}
+            alt={match.teamB.name}
+            className="team-logo"
+          />
           <span className="team-name">{match.teamB.name}</span>
         </div>
       </div>
 
-      {match.venue && <button className="watch-button" type="button">{match.venue}</button>}
+      {match.venue && (
+        <button className="watch-button" type="button">
+          {match.venue}
+        </button>
+      )}
     </article>
   );
 }
@@ -69,7 +80,6 @@ function Home() {
           </div>
 
           <div>
-            <ThemeToggle />
             <SignOutButton />
           </div>
         </header>
@@ -109,7 +119,8 @@ function Home() {
             </h2>
 
             <span className="match-count">
-              {filteredMatches.length} {filteredMatches.length === 1 ? "match" : "matches"}
+              {filteredMatches.length}{" "}
+              {filteredMatches.length === 1 ? "match" : "matches"}
             </span>
           </div>
 
@@ -121,7 +132,9 @@ function Home() {
             ) : filteredMatches.length === 0 ? (
               <p className="empty-events">No matches found.</p>
             ) : (
-              filteredMatches.map((match) => <MatchCard key={match.id} match={match} />)
+              filteredMatches.map((match) => (
+                <MatchCard key={match.id} match={match} />
+              ))
             )}
           </div>
         </section>
