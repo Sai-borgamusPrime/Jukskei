@@ -1,47 +1,126 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
+const PROFILE_TIMEOUT_MS = 8000;
+
+function withTimeout(promise, ms, message) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(message)), ms)
+    ),
+  ]);
+}
+
 export function useAuthProfile() {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [authReady, setAuthReady] = useState(false);
-  const [profileReady, setProfileReady] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const fetchProfile = async (userId) => {
+    const profileRequest = supabase
+      .from("profiles")
+      .select("id, email, full_name, role")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const { data, error: profileError } = await withTimeout(
+      profileRequest,
+      PROFILE_TIMEOUT_MS,
+      "Profile request timed out. Check your profiles RLS policy."
+    );
+
+    if (profileError) {
+      throw profileError;
+    }
+
+    return data;
+  };
 
   useEffect(() => {
     let cancelled = false;
 
-    async function loadInitialSession() {
+    async function loadAuth() {
+      setLoading(true);
+      setError("");
+
       try {
+        if (!supabase?.auth) {
+          throw new Error("Supabase client is not configured correctly.");
+        }
+
         const { data, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) {
           throw sessionError;
         }
 
-        if (!cancelled) {
-          setSession(data.session || null);
+        const currentSession = data?.session || null;
+
+        if (cancelled) return;
+
+        setSession(currentSession);
+
+        if (!currentSession?.user?.id) {
+          setProfile(null);
+          return;
         }
+
+        const loadedProfile = await fetchProfile(currentSession.user.id);
+
+        if (cancelled) return;
+
+        console.log("Logged-in user:", currentSession.user.email);
+        console.log("Loaded profile:", loadedProfile);
+
+        setProfile(loadedProfile);
       } catch (err) {
-        console.error("Session load failed:", err);
+        console.error("useAuthProfile failed:", err);
+
         if (!cancelled) {
-          setError(err.message || "Session load failed.");
-          setSession(null);
+          setError(err.message || "Could not load authentication profile.");
+          setProfile(null);
         }
       } finally {
         if (!cancelled) {
-          setAuthReady(true);
+          setLoading(false);
         }
       }
     }
 
-    loadInitialSession();
+    loadAuth();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (cancelled) return;
+
       setSession(newSession || null);
-      setAuthReady(true);
+
+      if (!newSession?.user?.id) {
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      fetchProfile(newSession.user.id)
+        .then((loadedProfile) => {
+          if (cancelled) return;
+          setProfile(loadedProfile);
+          setError("");
+        })
+        .catch((err) => {
+          console.error("Auth state profile reload failed:", err);
+          if (cancelled) return;
+          setError(err.message || "Could not reload user profile.");
+          setProfile(null);
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setLoading(false);
+          }
+        });
     });
 
     return () => {
@@ -50,57 +129,10 @@ export function useAuthProfile() {
     };
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadProfile() {
-      setProfileReady(false);
-      setError("");
-
-      if (!session?.user?.id) {
-        setProfile(null);
-        setProfileReady(true);
-        return;
-      }
-
-      try {
-        const { data, error: profileError } = await supabase
-          .from("profiles")
-          .select("id, email, full_name, role")
-          .eq("id", session.user.id)
-          .maybeSingle();
-
-        if (profileError) {
-          throw profileError;
-        }
-
-        if (!cancelled) {
-          setProfile(data || null);
-        }
-      } catch (err) {
-        console.error("Profile load failed:", err);
-        if (!cancelled) {
-          setError(err.message || "Profile load failed.");
-          setProfile(null);
-        }
-      } finally {
-        if (!cancelled) {
-          setProfileReady(true);
-        }
-      }
-    }
-
-    loadProfile();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [session?.user?.id]);
-
   return {
     session,
     profile,
-    loading: !authReady || !profileReady,
+    loading,
     error,
     isLoggedIn: Boolean(session?.user),
     isSuperAdmin: profile?.role === "super_admin",
