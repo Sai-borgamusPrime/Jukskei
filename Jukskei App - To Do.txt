@@ -1,24 +1,23 @@
 Jukskei App - To Do
 
-[v] Update Team List and logos
-[v] Make calendar clickable + be able to add and display events
-[v] Add international test schedule (29th May)
-[v] Add program for Sondag 24 Mei 2026
-[v] Implement A & B divisions
-[v] Implement total score views on each teams tab
-[v] Update Menu with actual food and drink items
-[v] Lunches are only available on Mon, Tue, and Wed; Display meal days
-[v] Add special events button under Menu for steak braai 
-[v] Add photo gallery page 
-[v] Add dark and light mode
+[] Create DB and add user authentication 
+[] Integrate live scoring
+[] Add all data to DB
 
-[] Make app responsive 
-[] Spell Jukskei correctly 
-
-Comments
-
-- Final team list by next Monday (27th April)
-- Fredrick and Stella are Admins 
-
-
-
+[] Add divisions for Namibian Teams (A1 To A3)
+[] Add divisions for Namibia (B1 to B9)
+[] Add a pre-order instruction to menu
+[] Add Ham/Cheese/Tomato Toast - N$25 (Beskikbaar gedurende die dag)
+[] Add Pannekoek N$40 for 5 (Beskikbaar gedurende die dag)
+[] Add Jaffels Chicken Mayo / Curry Mince  N$25 (Beskikbaar gedurende die dag)
+[] Add referees section to teams
+[] Add international test matches to dashboard
+[] Add green Jukskei logo teams to division A
+[] Remove burger entirely
+[] Change menu nav - All      All Day      Drinks      - Monday      Tuesday     - Wednesday     Thursday   Friday
+[] Add items to shop 
+[] Add drinks to Menu
+[] Convert "Follow live matches" to English
+[] Give access to spreadsheet via teams page 
+[] Add Schoemans gratitude page to dashboard 
+[] Optimize images for app 

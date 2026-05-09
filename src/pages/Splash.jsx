@@ -1,15 +1,45 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Splash.css";
+
+const INTRO_DURATION = 3000;
+const EXIT_DURATION = 650;
 
 function Splash() {
   const navigate = useNavigate();
+  const [isLeaving, setIsLeaving] = useState(false);
+
+  useEffect(() => {
+    const exitTimer = setTimeout(() => {
+      setIsLeaving(true);
+    }, INTRO_DURATION);
+
+    const navigateTimer = setTimeout(() => {
+      navigate("/splash2", { replace: true });
+    }, INTRO_DURATION + EXIT_DURATION);
+
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(navigateTimer);
+    };
+  }, [navigate]);
 
   return (
-    <main className="splash-page">
+    <main
+      className={`splash-page ${isLeaving ? "is-leaving" : ""}`}
+      role="status"
+      aria-live="polite"
+      aria-label="Loading Jukskei Tournament app"
+    >
+      <div className="splash-orb splash-orb-one"></div>
+      <div className="splash-orb splash-orb-two"></div>
+      <div className="splash-grid"></div>
+
       <section className="splash-content">
         <div className="splash-main">
-          <div className="logo-block">
+          <div className="logo-block" aria-hidden="true">
             <div className="logo-aura"></div>
+            <div className="logo-ring"></div>
             <div className="logo-mist"></div>
             <div className="logo-flare logo-flare-left"></div>
             <div className="logo-flare logo-flare-right"></div>
@@ -31,7 +61,7 @@ function Splash() {
           </div>
         </div>
 
-        <div className="splash-side">
+        <aside className="splash-side">
           <div className="splash-powered">
             <p>Powered By</p>
             <img
@@ -41,19 +71,21 @@ function Splash() {
             />
           </div>
 
-          <button
-            className="splash-button"
-            type="button"
-            onClick={() => navigate("/splash2")}
-          >
-            Get Started <span aria-hidden="true">→</span>
-          </button>
+          <div className="loading-block">
+            <div className="loading-bar">
+              <span></span>
+            </div>
 
-          <Link to="/splash2" className="auth-link">
-            Don’t have an account?{" "}
-            <span className="signup-highlight">Sign up</span>
-          </Link>
-        </div>
+            <div className="loading-text">
+              <span>Loading tournament experience</span>
+              <div className="loading-dots" aria-hidden="true">
+                <i></i>
+                <i></i>
+                <i></i>
+              </div>
+            </div>
+          </div>
+        </aside>
       </section>
     </main>
   );
