@@ -4,6 +4,7 @@ import BottomNav from "../components/BottomNav";
 import ThemeToggle from "../components/ThemeToggle";
 import shopItems from "../data/shopItems";
 import "./Shop.css";
+import SignOutButton from "../components/SignOutButton/SignOutButton";
 
 function Shop() {
   const [query, setQuery] = useState("");
@@ -34,7 +35,10 @@ function Shop() {
           </div>
 
           <div className="shop-header-actions">
-            <ThemeToggle />
+            <div>
+              <ThemeToggle />
+              <SignOutButton />
+            </div>
           </div>
         </header>
 

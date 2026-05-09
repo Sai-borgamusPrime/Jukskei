@@ -4,6 +4,7 @@ import BottomNav from "../components/BottomNav";
 import ThemeToggle from "../components/ThemeToggle";
 import "./Schedule.css";
 import useTheme from "../hooks/useTheme";
+import SignOutButton from "../components/SignOutButton/SignOutButton";
 
 const months = [
   "January",
@@ -384,7 +385,10 @@ function Schedule() {
             <p className="schedule-kicker">Toernooi Program</p>
           </div>
 
-          <ThemeToggle />
+          <div>
+            <ThemeToggle />
+            <SignOutButton />
+          </div>
         </header>
 
         <section className="schedule-hero">

@@ -4,6 +4,7 @@ import BottomNav from "../components/BottomNav";
 import ThemeToggle from "../components/ThemeToggle";
 import menuItems from "../data/menuItems";
 import "./Menu.css";
+import SignOutButton from "../components/SignOutButton/SignOutButton";
 
 function Menu() {
   const [query, setQuery] = useState("");
@@ -43,7 +44,10 @@ function Menu() {
           </div>
 
           <div className="menu-header-actions">
-            <ThemeToggle />
+            <div>
+              <ThemeToggle />
+              <SignOutButton />
+            </div>
           </div>
         </header>
 

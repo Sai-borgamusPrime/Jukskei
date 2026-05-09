@@ -5,6 +5,7 @@ import BottomNav from "../components/BottomNav";
 import ThemeToggle from "../components/ThemeToggle";
 import matches from "../data/matches";
 import "./Home.css";
+import SignOutButton from "../components/SignOutButton/SignOutButton";
 
 function Home() {
   const [activeTab, setActiveTab] = useState("live");
@@ -23,7 +24,10 @@ function Home() {
             <p className="home-kicker">Toernooi Wedstrydsentrum</p>
           </div>
 
-          <ThemeToggle />
+          <div>
+            <ThemeToggle />
+            <SignOutButton />
+          </div>
         </header>
 
         <section className="home-hero">

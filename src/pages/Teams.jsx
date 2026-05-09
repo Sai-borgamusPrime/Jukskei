@@ -5,6 +5,7 @@ import BottomNav from "../components/BottomNav";
 import ThemeToggle from "../components/ThemeToggle";
 import teams from "../data/teams";
 import "./Teams.css";
+import SignOutButton from "../components/SignOutButton/SignOutButton";
 
 function Teams() {
   const [query, setQuery] = useState("");
@@ -44,7 +45,10 @@ function Teams() {
             <p className="teams-kicker">Spanranglys</p>
           </div>
 
-          <ThemeToggle />
+          <div>
+            <ThemeToggle />
+            <SignOutButton />
+          </div>
         </header>
 
         <section className="teams-hero">

@@ -1,0 +1,49 @@
+.signout-button {
+  width: fit-content;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  border-radius: 14px;
+  background: rgba(220, 38, 38, 0.08);
+  color: #b42318;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.signout-button:hover {
+  transform: translateY(-1px);
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.28);
+  box-shadow: 0 12px 24px rgba(220, 38, 38, 0.14);
+}
+
+.signout-button:active {
+  transform: translateY(0);
+}
+
+.signout-button:focus-visible {
+  outline: 3px solid rgba(220, 38, 38, 0.22);
+  outline-offset: 3px;
+}
+
+.signout-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(220, 38, 38, 0.12);
+  font-size: 0.9rem;
+  line-height: 1;
+}

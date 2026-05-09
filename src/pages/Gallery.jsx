@@ -4,6 +4,7 @@ import galleryImages from "../data/galleryImages";
 import BottomNav from "../components/BottomNav";
 import { Upload, Trash2, Star, X, ArrowLeft, Images } from "lucide-react";
 import ThemeToggle from "../components/ThemeToggle";
+import SignOutButton from "../components/SignOutButton/SignOutButton";
 
 function Gallery() {
   const [categories, setCategories] = useState(galleryImages);
@@ -89,7 +90,10 @@ function Gallery() {
             <p className="gallery-kicker">Toernooi Herinneringe</p>
           </div>
 
-          <ThemeToggle />
+          <div>
+            <ThemeToggle />
+            <SignOutButton />
+          </div>
         </header>
 
         {!activeCategory ? (
