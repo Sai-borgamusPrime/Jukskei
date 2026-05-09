@@ -656,3 +656,19 @@
     justify-content: flex-end;
   }
 }
+
+.admin-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  padding: 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  background: var(--admin-input-bg);
+}
+
+@media (max-width: 640px) {
+  .admin-checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,21 +1,12 @@
 import { Search, Utensils } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BottomNav from "../components/BottomNav";
-import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
-import { getPublicMenuItems } from "../services/publicApi";
+import {
+  getPublicMenuCategories,
+  getPublicMenuItems,
+} from "../services/publicApi";
 import "./Menu.css";
-
-const defaultCategories = [
-  "All",
-  "Everyday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Special Events",
-];
 
 function Menu() {
   const [query, setQuery] = useState("");
@@ -23,19 +14,25 @@ function Menu() {
 
   const {
     data: menuItems = [],
-    loading,
-    error,
-  } = usePublicQuery(getPublicMenuItems, [], ["menu_items"]);
+    loading: itemsLoading,
+    error: itemsError,
+  } = usePublicQuery(getPublicMenuItems, [], ["menu_items", "menu_categories"]);
+
+  const {
+    data: menuCategories = [],
+    loading: categoriesLoading,
+    error: categoriesError,
+  } = usePublicQuery(getPublicMenuCategories, [], ["menu_categories"]);
 
   const categories = useMemo(() => {
-    const dynamicCategories = new Set(defaultCategories);
+    return ["All", ...menuCategories.map((category) => category.name)];
+  }, [menuCategories]);
 
-    menuItems.forEach((item) => {
-      item.categories?.forEach((category) => dynamicCategories.add(category));
-    });
-
-    return Array.from(dynamicCategories);
-  }, [menuItems]);
+  useEffect(() => {
+    if (!categories.includes(activeCategory)) {
+      setActiveCategory("All");
+    }
+  }, [activeCategory, categories]);
 
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
@@ -50,6 +47,9 @@ function Menu() {
     });
   }, [query, activeCategory, menuItems]);
 
+  const loading = itemsLoading || categoriesLoading;
+  const error = itemsError || categoriesError;
+
   return (
     <main className="menu-page">
       <section className="menu-shell">
@@ -57,12 +57,6 @@ function Menu() {
           <div>
             <h1 className="menu-title">JUKSKEI</h1>
             <p className="menu-kicker">Kos en verversings</p>
-          </div>
-
-          <div className="menu-header-actions">
-            <div>
-              <SignOutButton />
-            </div>
           </div>
         </header>
 
@@ -107,7 +101,9 @@ function Menu() {
                 <button
                   key={category}
                   type="button"
-                  className={`menu-category-btn ${activeCategory === category ? "active" : ""}`}
+                  className={`menu-category-btn ${
+                    activeCategory === category ? "active" : ""
+                  }`}
                   onClick={() => setActiveCategory(category)}
                 >
                   {category}
@@ -127,9 +123,12 @@ function Menu() {
               filteredItems.map((item) => (
                 <article key={item.id} className="menu-card">
                   <img
-                    src={item.image}
+                    src={item.image || "/logo.webp"}
                     alt={item.name}
                     className="menu-card-image"
+                    onError={(event) => {
+                      event.currentTarget.src = "/logo.webp";
+                    }}
                   />
 
                   <div className="menu-card-body">
@@ -137,7 +136,7 @@ function Menu() {
 
                     <p className="menu-card-time">
                       <span className="menu-time-dot"></span>
-                      {item.DOW}
+                      {item.DOW || "Available"}
                     </p>
 
                     <p className="menu-card-price">N${item.price.toFixed(2)}</p>

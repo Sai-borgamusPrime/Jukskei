@@ -9,7 +9,7 @@ Jukskei App - To Do
 [v] Adjust positioning of buttons
 [v] Add divisions for Namibian Teams (A1 To A3)
 [v] Add divisions for Namibia (B1 to B9)
-[] Change menu nav - All      All Day      Drinks      - Monday      Tuesday     - Wednesday     Thursday   Friday
+[v] Change menu nav - All      All Day      Drinks      - Monday      Tuesday     - Wednesday     Thursday   Friday
 [] Add a pre-order instruction to menu/ modal order modal
 [] Link orders to google sheet and send whatsapp notification
 [] Convert "Follow live matches" to English

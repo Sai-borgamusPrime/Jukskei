@@ -469,3 +469,69 @@ export async function deleteDivision(id) {
 
   return true;
 }
+
+export async function listMenuCategories() {
+  const { data, error } = await supabase
+    .from("menu_categories")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+
+  return data || [];
+}
+
+export async function saveMenuCategory(payload, id = null) {
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData?.user?.id || null;
+
+  const cleanPayload = {
+    name: String(payload.name || "").trim(),
+    sort_order: Number(payload.sort_order || 0),
+    is_active: payload.is_active !== false,
+    updated_by: userId,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (!cleanPayload.name) {
+    throw new Error("Category name is required.");
+  }
+
+  if (id) {
+    const { data, error } = await supabase
+      .from("menu_categories")
+      .update(cleanPayload)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return data;
+  }
+
+  const { data, error } = await supabase
+    .from("menu_categories")
+    .insert({
+      ...cleanPayload,
+      created_by: userId,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function deleteMenuCategory(id) {
+  const { error } = await supabase
+    .from("menu_categories")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+
+  return true;
+}
