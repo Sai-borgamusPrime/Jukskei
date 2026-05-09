@@ -23,6 +23,8 @@ import useTheme from "./hooks/useTheme";
 import { useAuthProfile } from "./hooks/useAuthProfile";
 import { supabase } from "./lib/supabaseClient";
 
+import AdminAccessButton from "./components/AdminAccessButton/AdminAccessButton";
+
 function Placeholder({ title }) {
   return (
     <main style={{ minHeight: "100vh", padding: "2rem" }}>
@@ -145,89 +147,93 @@ function App() {
   useTheme();
 
   return (
-    <Routes>
-      {/* Splash / Auth */}
-      <Route path="/" element={<Splash />} />
-      <Route path="/splash2" element={<Splash2 />} />
-      <Route path="/logout" element={<Logout />} />
+    <>
+      <Routes>
+        {/* Splash / Auth */}
+        <Route path="/" element={<Splash />} />
+        <Route path="/splash2" element={<Splash2 />} />
+        <Route path="/logout" element={<Logout />} />
 
-      {/* Public App */}
-      <Route path="/home" element={<Home />} />
-      <Route path="/schedule" element={<Schedule />} />
-      <Route path="/teams" element={<Teams />} />
-      <Route path="/teams/:slug" element={<TeamDetails />} />
-      <Route path="/gallery" element={<Gallery />} />
-      <Route path="/menu" element={<Menu />} />
-      <Route path="/shop" element={<Shop />} />
-      <Route path="/scores" element={<Placeholder title="Scores" />} />
+        {/* Public App */}
+        <Route path="/home" element={<Home />} />
+        <Route path="/schedule" element={<Schedule />} />
+        <Route path="/teams" element={<Teams />} />
+        <Route path="/teams/:slug" element={<TeamDetails />} />
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/menu" element={<Menu />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/scores" element={<Placeholder title="Scores" />} />
 
-      {/* Protected Admin Portal */}
-      <Route
-        path="/admin"
-        element={
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
-        }
-      />
+        {/* Protected Admin Portal */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
 
-      <Route
-        path="/admin/teams"
-        element={
-          <AdminRoute>
-            <AdminTeams />
-          </AdminRoute>
-        }
-      />
+        <Route
+          path="/admin/teams"
+          element={
+            <AdminRoute>
+              <AdminTeams />
+            </AdminRoute>
+          }
+        />
 
-      <Route
-        path="/admin/matches"
-        element={
-          <AdminRoute>
-            <AdminMatches />
-          </AdminRoute>
-        }
-      />
+        <Route
+          path="/admin/matches"
+          element={
+            <AdminRoute>
+              <AdminMatches />
+            </AdminRoute>
+          }
+        />
 
-      <Route
-        path="/admin/schedule"
-        element={
-          <AdminRoute>
-            <AdminSchedule />
-          </AdminRoute>
-        }
-      />
+        <Route
+          path="/admin/schedule"
+          element={
+            <AdminRoute>
+              <AdminSchedule />
+            </AdminRoute>
+          }
+        />
 
-      <Route
-        path="/admin/menu"
-        element={
-          <AdminRoute>
-            <AdminMenu />
-          </AdminRoute>
-        }
-      />
+        <Route
+          path="/admin/menu"
+          element={
+            <AdminRoute>
+              <AdminMenu />
+            </AdminRoute>
+          }
+        />
 
-      <Route
-        path="/admin/shop"
-        element={
-          <AdminRoute>
-            <AdminShop />
-          </AdminRoute>
-        }
-      />
+        <Route
+          path="/admin/shop"
+          element={
+            <AdminRoute>
+              <AdminShop />
+            </AdminRoute>
+          }
+        />
 
-      <Route
-        path="/admin/gallery"
-        element={
-          <AdminRoute>
-            <AdminGallery />
-          </AdminRoute>
-        }
-      />
+        <Route
+          path="/admin/gallery"
+          element={
+            <AdminRoute>
+              <AdminGallery />
+            </AdminRoute>
+          }
+        />
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/home" replace />} />
-    </Routes>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/home" replace />} />
+      </Routes>
+
+      <AdminAccessButton />
+    </>
   );
 }
 

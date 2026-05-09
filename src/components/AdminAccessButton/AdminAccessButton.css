@@ -1,0 +1,58 @@
+.floating-admin-access {
+  position: fixed;
+  right: 16px;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  z-index: 9999;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(47, 111, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #001a4d;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 16px 34px rgba(0, 26, 77, 0.16);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.floating-admin-access span {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(47, 111, 255, 0.1);
+  color: #2f6fff;
+  font-size: 0.8rem;
+}
+
+.floating-admin-access:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  border-color: rgba(47, 111, 255, 0.34);
+  color: #2f6fff;
+  box-shadow: 0 20px 42px rgba(0, 26, 77, 0.2);
+}
+
+.floating-admin-access:active {
+  transform: translateY(0);
+}
+
+@media (min-width: 768px) {
+  .floating-admin-access {
+    right: 24px;
+    bottom: 24px;
+  }
+}

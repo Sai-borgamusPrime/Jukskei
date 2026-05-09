@@ -1,10 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import "./Splash2.css";
 
+const PROFILE_CHECK_RETRIES = 6;
+const PROFILE_CHECK_DELAY = 350;
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function Splash2() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -35,6 +43,16 @@ function Splash2() {
 
   const isAuthModalOpen = Boolean(authMode);
   const currentSlide = slides[currentIndex];
+
+  useEffect(() => {
+    const adminParam = searchParams.get("admin");
+
+    if (adminParam === "login" || adminParam === "true") {
+      setAuthMode("login");
+      setAuthError("");
+      setAuthMessage("");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -114,19 +132,46 @@ function Splash2() {
     setIsAuthLoading(false);
   };
 
-  const getUserRedirectPath = async (userId) => {
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .single();
+  const goToPublicApp = () => {
+    navigate("/home", { replace: true });
+  };
 
-    if (error) {
-      console.error("Profile role check failed:", error.message);
-      return "/home";
+  const getAdminProfile = async (userId) => {
+    for (let attempt = 0; attempt < PROFILE_CHECK_RETRIES; attempt += 1) {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, email, full_name, role")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Admin profile check failed:", error.message);
+      }
+
+      if (data) {
+        return data;
+      }
+
+      await wait(PROFILE_CHECK_DELAY);
     }
 
-    return profile?.role === "super_admin" ? "/admin" : "/home";
+    return null;
+  };
+
+  const redirectAdminOrReject = async (userId) => {
+    const profile = await getAdminProfile(userId);
+
+    if (profile?.role === "super_admin") {
+      closeAuthModal();
+      navigate("/admin", { replace: true });
+      return;
+    }
+
+    await supabase.auth.signOut({ scope: "local" });
+
+    throw new Error(
+      "This login area is reserved for approved tournament administrators only.",
+    );
   };
 
   const handleAuthSubmit = async (event) => {
@@ -138,10 +183,17 @@ function Splash2() {
     setAuthMessage("");
     setIsAuthLoading(true);
 
+    if (!supabase?.auth) {
+      setAuthError("Supabase is not configured correctly.");
+      setIsAuthLoading(false);
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
 
     const email = String(formData.get("email") || "")
       .trim()
+      .replace(/\s+/g, "")
       .toLowerCase();
 
     const password = String(formData.get("password") || "");
@@ -175,10 +227,7 @@ function Splash2() {
           throw new Error("Login succeeded, but no user profile was returned.");
         }
 
-        const redirectPath = await getUserRedirectPath(userId);
-
-        closeAuthModal();
-        navigate(redirectPath, { replace: true });
+        await redirectAdminOrReject(userId);
         return;
       }
 
@@ -195,12 +244,12 @@ function Splash2() {
 
         if (error) throw error;
 
-        const userId = data?.user?.id;
         const session = data?.session;
+        const userId = data?.user?.id;
 
         if (!session) {
           setAuthMessage(
-            "Account created. Please check your email to confirm your account, then log in.",
+            "Admin account created. Please confirm your email, then log in.",
           );
           setIsAuthLoading(false);
           return;
@@ -210,10 +259,7 @@ function Splash2() {
           throw new Error("Account created, but no user profile was returned.");
         }
 
-        const redirectPath = await getUserRedirectPath(userId);
-
-        closeAuthModal();
-        navigate(redirectPath, { replace: true });
+        await redirectAdminOrReject(userId);
       }
     } catch (error) {
       setAuthError(error.message || "Something went wrong. Please try again.");
@@ -239,7 +285,7 @@ function Splash2() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/splash2`,
+        redirectTo: `${window.location.origin}/splash2?admin=login`,
       });
 
       if (error) throw error;
@@ -306,19 +352,18 @@ function Splash2() {
         <div className="splash2-actions">
           <button
             type="button"
-            className="splash2-login-button"
-            onClick={() => openAuthModal("login")}
+            className="splash2-enter-button"
+            onClick={goToPublicApp}
           >
-            Login →
+            Enter App <span aria-hidden="true">→</span>
           </button>
 
           <button
             type="button"
-            className="auth-link2 auth-button-link"
-            onClick={() => openAuthModal("signup")}
+            className="splash2-admin-access"
+            onClick={() => openAuthModal("login")}
           >
-            Don’t have an account?{" "}
-            <span className="signup-highlight2">Sign up</span>
+            Admin access
           </button>
         </div>
       </section>
@@ -346,12 +391,17 @@ function Splash2() {
               <img src="/logo.png" alt="Jukskei Tournament Logo" />
 
               <div>
-                <p>Jukskei Tournament</p>
+                <p>Admin Portal</p>
                 <h2 id="auth-modal-title">
-                  {authMode === "login" ? "Welcome back" : "Create account"}
+                  {authMode === "login" ? "Admin login" : "Admin sign up"}
                 </h2>
               </div>
             </div>
+
+            <p className="auth-admin-note">
+              Public users can enter the tournament app without logging in. This
+              area is only for approved tournament administrators.
+            </p>
 
             <div className="auth-tabs" role="tablist" aria-label="Auth options">
               <button
@@ -409,7 +459,7 @@ function Splash2() {
                 <input
                   type="email"
                   name="email"
-                  placeholder="Enter your email address"
+                  placeholder="Enter your admin email address"
                   autoComplete="email"
                   disabled={isAuthLoading}
                   required
@@ -464,7 +514,7 @@ function Splash2() {
                 <label className="auth-checkbox auth-terms">
                   <input type="checkbox" disabled={isAuthLoading} required />
                   <span>
-                    I agree to the tournament app terms and privacy policy.
+                    I confirm that this account is for tournament admin use.
                   </span>
                 </label>
               )}
@@ -479,15 +529,15 @@ function Splash2() {
                     ? "Logging in..."
                     : "Creating account..."
                   : authMode === "login"
-                    ? "Login to app"
-                    : "Create account"}
+                    ? "Login to admin portal"
+                    : "Create admin account"}
               </button>
             </form>
 
             <p className="auth-switch-text">
               {authMode === "login"
-                ? "New to the tournament app?"
-                : "Already have an account?"}{" "}
+                ? "Need an approved admin account?"
+                : "Already have an admin account?"}{" "}
               <button
                 type="button"
                 onClick={() =>
@@ -495,7 +545,7 @@ function Splash2() {
                 }
                 disabled={isAuthLoading}
               >
-                {authMode === "login" ? "Create an account" : "Login instead"}
+                {authMode === "login" ? "Sign up" : "Login instead"}
               </button>
             </p>
           </section>
