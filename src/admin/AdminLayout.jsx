@@ -30,7 +30,7 @@ function AdminLayout({ title, description, children, actions }) {
         <aside className="admin-sidebar">
           <div className="admin-brand">
             <img
-              src="/logo.png"
+              src="/logo.webp"
               alt="Jukskei Tournament Logo"
               className="admin-brand-logo"
             />

@@ -1,23 +1,26 @@
 Jukskei App - To Do
 
-[] Create DB and add user authentication 
-[] Integrate live scoring
-[] Add all data to DB
-
+[v] Create DB and add user authentication 
+[v] Integrate live scoring
+[v] Add all data to DB
+[] Optimize images for app 
+[] Fix scrollable area
+[] Make app downloadable 
+[] Adjust positioning of buttons
+[] Add dark/light mode near refresh button on admin dashbaord  
 [] Add divisions for Namibian Teams (A1 To A3)
 [] Add divisions for Namibia (B1 to B9)
-[] Add a pre-order instruction to menu
+[] Add referees section to teams
+[] Change menu nav - All      All Day      Drinks      - Monday      Tuesday     - Wednesday     Thursday   Friday
+[] Add a pre-order instruction to menu/ modal order modal
+[] Link orders to google sheet and send whatsapp notification
+[] Convert "Follow live matches" to English
+[] Add Schoemans gratitude page to dashboard
+
+[] Add items to shop 
+[] Add drinks to Menu
+[] Add green Jukskei logo teams to division A
+[] Add international test matches to dashboard
 [] Add Ham/Cheese/Tomato Toast - N$25 (Beskikbaar gedurende die dag)
 [] Add Pannekoek N$40 for 5 (Beskikbaar gedurende die dag)
 [] Add Jaffels Chicken Mayo / Curry Mince  N$25 (Beskikbaar gedurende die dag)
-[] Add referees section to teams
-[] Add international test matches to dashboard
-[] Add green Jukskei logo teams to division A
-[] Remove burger entirely
-[] Change menu nav - All      All Day      Drinks      - Monday      Tuesday     - Wednesday     Thursday   Friday
-[] Add items to shop 
-[] Add drinks to Menu
-[] Convert "Follow live matches" to English
-[] Give access to spreadsheet via teams page 
-[] Add Schoemans gratitude page to dashboard 
-[] Optimize images for app 

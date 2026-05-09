@@ -45,7 +45,7 @@ function Splash() {
             <div className="logo-flare logo-flare-right"></div>
 
             <img
-              src="/logo.png"
+              src="/logo.webp"
               alt="Jukskei Tournament Logo"
               className="splash-logo"
             />

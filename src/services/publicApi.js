@@ -72,8 +72,8 @@ function mapTeam(row) {
     name: normalizeText(row.name, "Unnamed Team"),
     slug: normalizeText(row.slug) || cleanSlug(row.name || row.id),
     division: normalizeText(row.division, "A"),
-    logo: normalizeText(row.logo_url, "/logo.png"),
-    bannerLogo: normalizeText(row.banner_logo_url || row.logo_url, "/logo.png"),
+    logo: normalizeText(row.logo_url, "/logo.webp"),
+    bannerLogo: normalizeText(row.banner_logo_url || row.logo_url, "/logo.webp"),
     totalScore: toNumber(row.total_score),
     isActive: Boolean(row.is_active),
   };
@@ -113,12 +113,12 @@ function mapMatch(row, teamLookup = new Map()) {
     teamA: {
       id: row.team_a_id,
       name: teamAName,
-      logo: normalizeText(teamA?.logo_url, "/logo.png"),
+      logo: normalizeText(teamA?.logo_url, "/logo.webp"),
     },
     teamB: {
       id: row.team_b_id,
       name: teamBName,
-      logo: normalizeText(teamB?.logo_url, "/logo.png"),
+      logo: normalizeText(teamB?.logo_url, "/logo.webp"),
     },
     teamAScore: toNumber(row.team_a_score),
     teamBScore: toNumber(row.team_b_score),
@@ -145,7 +145,7 @@ function mapMenuItem(row) {
     price: toNumber(row.price),
     DOW: normalizeText(row.dow, "Everyday"),
     categories: Array.isArray(row.categories) ? row.categories : [],
-    image: normalizeText(row.image_url, "/logo.png"),
+    image: normalizeText(row.image_url, "/logo.webp"),
     isAvailable: Boolean(row.is_available),
   };
 }
@@ -158,7 +158,7 @@ function mapShopItem(row) {
     details: normalizeText(row.details),
     price: toNumber(row.price),
     category: normalizeText(row.category, "Other"),
-    image: normalizeText(row.image_url, "/logo.png"),
+    image: normalizeText(row.image_url, "/logo.webp"),
     isAvailable: Boolean(row.is_available),
   };
 }
@@ -299,13 +299,13 @@ export async function getPublicGallery() {
       categoryImages.find((image) => image.is_cover)?.image_url ||
       categoryImages[0]?.image_url ||
       category.fallback_image_url ||
-      "/logo.png";
+      "/logo.webp";
 
     return {
       id: category.id,
       title: normalizeText(category.title),
       coverImage,
-      fallbackImage: normalizeText(category.fallback_image_url, "/logo.png"),
+      fallbackImage: normalizeText(category.fallback_image_url, "/logo.webp"),
       images: categoryImages.map((image) => ({
         id: image.id,
         title: normalizeText(image.title, "Gallery image"),

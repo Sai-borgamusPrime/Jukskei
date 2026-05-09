@@ -26,13 +26,13 @@ function Splash2() {
   const slides = useMemo(
     () => [
       {
-        image: "/player.png",
+        image: "/player.webp",
         alt: "Jukskei Player",
         title: "Welkom by Jukskei 25",
         text: "Vier 25 jaar van jukskei-uitnemendheid en passie. Volg wedstryde, skedules en beleef die toernooi op een plek.",
       },
       {
-        image: "/family.png",
+        image: "/family.webp",
         alt: "Jukskei Family",
         title: "Jukskei Familie",
         text: "Viering van sport, gemeenskap en samewerking. Geniet die toernooi en wees deel van die jukskei-erfenis.",
@@ -43,6 +43,19 @@ function Splash2() {
 
   const isAuthModalOpen = Boolean(authMode);
   const currentSlide = slides[currentIndex];
+
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, []);
 
   useEffect(() => {
     const adminParam = searchParams.get("admin");
@@ -65,9 +78,6 @@ function Splash2() {
   useEffect(() => {
     if (!isAuthModalOpen) return;
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
     const handleEscape = (event) => {
       if (event.key === "Escape") {
         closeAuthModal();
@@ -77,7 +87,6 @@ function Splash2() {
     window.addEventListener("keydown", handleEscape);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleEscape);
     };
   }, [isAuthModalOpen]);
@@ -388,7 +397,7 @@ function Splash2() {
             </button>
 
             <div className="auth-brand">
-              <img src="/logo.png" alt="Jukskei Tournament Logo" />
+              <img src="/logo.webp" alt="Jukskei Tournament Logo" />
 
               <div>
                 <p>Admin Portal</p>
