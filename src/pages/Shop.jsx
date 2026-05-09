@@ -1,9 +1,11 @@
 import { Search, ShoppingBag } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BottomNav from "../components/BottomNav";
-import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
-import { getPublicShopItems } from "../services/publicApi";
+import {
+  getPublicShopCategories,
+  getPublicShopItems,
+} from "../services/publicApi";
 import "./Shop.css";
 
 function Shop() {
@@ -12,22 +14,31 @@ function Shop() {
 
   const {
     data: shopItems = [],
-    loading,
-    error,
-  } = usePublicQuery(getPublicShopItems, [], ["shop_items"]);
+    loading: itemsLoading,
+    error: itemsError,
+  } = usePublicQuery(getPublicShopItems, [], ["shop_items", "shop_categories"]);
+
+  const {
+    data: shopCategories = [],
+    loading: categoriesLoading,
+    error: categoriesError,
+  } = usePublicQuery(getPublicShopCategories, [], ["shop_categories"]);
 
   const categories = useMemo(() => {
-    const values = new Set([
-      "All",
-      ...shopItems.map((item) => item.category).filter(Boolean),
-    ]);
-    return Array.from(values);
-  }, [shopItems]);
+    return ["All", ...shopCategories.map((category) => category.name)];
+  }, [shopCategories]);
+
+  useEffect(() => {
+    if (!categories.includes(activeCategory)) {
+      setActiveCategory("All");
+    }
+  }, [activeCategory, categories]);
 
   const filteredItems = useMemo(() => {
     return shopItems.filter((item) => {
       const matchesCategory =
         activeCategory === "All" || item.category === activeCategory;
+
       const matchesQuery = item.name
         .toLowerCase()
         .includes(query.toLowerCase());
@@ -36,6 +47,9 @@ function Shop() {
     });
   }, [query, activeCategory, shopItems]);
 
+  const loading = itemsLoading || categoriesLoading;
+  const error = itemsError || categoriesError;
+
   return (
     <main className="shop-page">
       <section className="shop-shell">
@@ -43,12 +57,6 @@ function Shop() {
           <div>
             <h1 className="shop-title">JUKSKEI</h1>
             <p className="shop-kicker">Toernooi Handelsware</p>
-          </div>
-
-          <div className="shop-header-actions">
-            <div>
-              <SignOutButton />
-            </div>
           </div>
         </header>
 
@@ -93,7 +101,9 @@ function Shop() {
                 <button
                   key={category}
                   type="button"
-                  className={`shop-category-btn ${activeCategory === category ? "active" : ""}`}
+                  className={`shop-category-btn ${
+                    activeCategory === category ? "active" : ""
+                  }`}
                   onClick={() => setActiveCategory(category)}
                 >
                   {category}
@@ -114,15 +124,21 @@ function Shop() {
                 <article key={item.id} className="shop-card">
                   <div className="shop-image-wrap">
                     <img
-                      src={item.image}
+                      src={item.image || "/logo.webp"}
                       alt={item.name}
                       className="shop-card-image"
+                      onError={(event) => {
+                        event.currentTarget.src = "/logo.webp";
+                      }}
                     />
                   </div>
 
                   <div className="shop-card-body">
                     <p className="shop-card-price">N${item.price.toFixed(2)}</p>
-                    <h3 className="shop-card-title">{item.subtitle}</h3>
+
+                    <h3 className="shop-card-title">
+                      {item.subtitle || item.name}
+                    </h3>
 
                     {item.details && (
                       <p className="shop-card-details">{item.details}</p>
