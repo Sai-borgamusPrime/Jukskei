@@ -13,7 +13,7 @@ Jukskei App - To Do
 [v] Add a pre-order instruction to menu/ modal order modal
 [v] Link orders to google sheet and send whatsapp notification
 [v] Convert "Follow live matches" to English
-[] Add Schoemans gratitude page to dashboard
+[v] Add Schoemans gratitude page to dashboard
 
 [] Add referees section to teams
 [] Add items to shop 

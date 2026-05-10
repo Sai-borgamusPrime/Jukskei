@@ -24,6 +24,7 @@ import { useAuthProfile } from "./hooks/useAuthProfile";
 import { supabase } from "./lib/supabaseClient";
 
 import AdminAccessButton from "./components/AdminAccessButton/AdminAccessButton";
+import CompanyCredit from "./components/CompanyCredit/CompanyCredit";
 import PWAInstallPrompt from "./components/PWAInstallPrompt/PWAInstallPrompt";
 
 import { CartProvider } from "./context/CartContext";
@@ -237,6 +238,7 @@ function App() {
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
 
+      <CompanyCredit />
       <AdminAccessButton />
       <FloatingCartButton />
       <PWAInstallPrompt />
