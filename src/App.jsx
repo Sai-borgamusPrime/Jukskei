@@ -24,8 +24,11 @@ import { useAuthProfile } from "./hooks/useAuthProfile";
 import { supabase } from "./lib/supabaseClient";
 
 import AdminAccessButton from "./components/AdminAccessButton/AdminAccessButton";
-
 import PWAInstallPrompt from "./components/PWAInstallPrompt/PWAInstallPrompt";
+
+import { CartProvider } from "./context/CartContext";
+import CartDrawer from "./components/Cart/CartDrawer";
+import FloatingCartButton from "./components/Cart/FloatingCartButton";
 
 function Placeholder({ title }) {
   return (
@@ -111,7 +114,7 @@ function AdminRoute({ children }) {
   }
 
   if (!isLoggedIn) {
-    return <Navigate to="/splash2" replace />;
+    return <Navigate to="/splash2?admin=login" replace />;
   }
 
   if (!isSuperAdmin) {
@@ -149,7 +152,7 @@ function App() {
   useTheme();
 
   return (
-    <>
+    <CartProvider>
       <Routes>
         {/* Splash / Auth */}
         <Route path="/" element={<Splash />} />
@@ -235,8 +238,10 @@ function App() {
       </Routes>
 
       <AdminAccessButton />
+      <FloatingCartButton />
       <PWAInstallPrompt />
-    </>
+      <CartDrawer />
+    </CartProvider>
   );
 }
 

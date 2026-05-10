@@ -507,3 +507,19 @@
     margin-bottom: 8px;
   }
 }
+
+.menu-card {
+  cursor: pointer;
+}
+
+.menu-card:focus-visible {
+  outline: 3px solid rgba(47, 111, 255, 0.28);
+  outline-offset: 4px;
+}
+
+.menu-card-add {
+  margin: 10px 0 0;
+  color: #2f6fff;
+  font-size: 0.78rem;
+  font-weight: 900;
+}

@@ -8,7 +8,10 @@ import {
 } from "../services/publicApi";
 import "./Shop.css";
 
+import { useCart } from "../context/CartContext";
+
 function Shop() {
+  const { addToCart } = useCart();
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -121,7 +124,38 @@ function Shop() {
               <p className="empty-events">No shop items found.</p>
             ) : (
               filteredItems.map((item) => (
-                <article key={item.id} className="shop-card">
+                <article
+                  key={item.id}
+                  className="shop-card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() =>
+                    addToCart({
+                      id: item.id,
+                      source: "shop",
+                      name: item.name,
+                      subtitle: item.subtitle,
+                      details: item.details,
+                      category: item.category,
+                      price: item.price,
+                      image: item.image || "/logo.webp",
+                    })
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      addToCart({
+                        id: item.id,
+                        source: "shop",
+                        name: item.name,
+                        subtitle: item.subtitle,
+                        details: item.details,
+                        category: item.category,
+                        price: item.price,
+                        image: item.image || "/logo.webp",
+                      });
+                    }
+                  }}
+                >
                   <div className="shop-image-wrap">
                     <img
                       src={item.image || "/logo.webp"}
@@ -143,6 +177,7 @@ function Shop() {
                     {item.details && (
                       <p className="shop-card-details">{item.details}</p>
                     )}
+                    <p className="shop-card-add">Tap to add to cart</p>
                   </div>
                 </article>
               ))

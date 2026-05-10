@@ -8,7 +8,10 @@ import {
 } from "../services/publicApi";
 import "./Menu.css";
 
+import { useCart } from "../context/CartContext";
+
 function Menu() {
+  const { addToCart } = useCart();
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -121,7 +124,34 @@ function Menu() {
               <p className="empty-events">No menu items found.</p>
             ) : (
               filteredItems.map((item) => (
-                <article key={item.id} className="menu-card">
+                <article
+                  key={item.id}
+                  className="menu-card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() =>
+                    addToCart({
+                      id: item.id,
+                      source: "menu",
+                      name: item.name,
+                      category: item.categories?.[0] || "",
+                      price: item.price,
+                      image: item.image || "/logo.webp",
+                    })
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      addToCart({
+                        id: item.id,
+                        source: "menu",
+                        name: item.name,
+                        category: item.categories?.[0] || "",
+                        price: item.price,
+                        image: item.image || "/logo.webp",
+                      });
+                    }
+                  }}
+                >
                   <img
                     src={item.image || "/logo.webp"}
                     alt={item.name}
@@ -140,6 +170,7 @@ function Menu() {
                     </p>
 
                     <p className="menu-card-price">N${item.price.toFixed(2)}</p>
+                    <p className="menu-card-add">Tap to add to cart</p>
                   </div>
                 </article>
               ))

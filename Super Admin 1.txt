@@ -1,0 +1,16 @@
+Super Admin 1
+Email: admin1@example.com
+Password: Admin123!test
+
+Super Admin 2
+Email: admin2@example.com
+Password: Admin123!test
+
+Regular User
+Email: user1@example.com
+Password: User123!test
+
+
+Deployment ID: AKfycby60ZdUKqIw_uMMWZwncLUSMRe3-r0uaKkTMba9HzWKGRx7aoEauzQDZSxY2x5d2maT
+
+Web app: https://script.google.com/macros/s/AKfycby60ZdUKqIw_uMMWZwncLUSMRe3-r0uaKkTMba9HzWKGRx7aoEauzQDZSxY2x5d2maT/exec
