@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Radio } from "lucide-react";
 import BottomNav from "../components/BottomNav";
-import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicMatches } from "../services/publicApi";
 import "./Home.css";
@@ -76,11 +75,7 @@ function Home() {
         <header className="home-header">
           <div>
             <h1 className="home-title">JUKSKEI</h1>
-            <p className="home-kicker">Toernooi Wedstrydsentrum</p>
-          </div>
-
-          <div>
-            <SignOutButton />
+            <p className="home-kicker">Tournament Match Centre</p>
           </div>
         </header>
 
@@ -88,7 +83,7 @@ function Home() {
           <div className="home-hero-content">
             <p className="home-eyebrow">Live Scoreboard</p>
             <h2 className="home-hero-title">
-              Volg die nuutste Jukskei-wedstryde in reële tyd.
+              Follow the latest Jukskei matches in real time.
             </h2>
           </div>
 

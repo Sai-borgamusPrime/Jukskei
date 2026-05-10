@@ -59,7 +59,7 @@ function Menu() {
         <header className="menu-header">
           <div>
             <h1 className="menu-title">JUKSKEI</h1>
-            <p className="menu-kicker">Kos en verversings</p>
+            <p className="menu-kicker">Food and refreshments</p>
           </div>
         </header>
 
@@ -68,8 +68,8 @@ function Menu() {
             <p className="menu-eyebrow">Tournament Menu</p>
             <h2 className="menu-page-heading">Menu</h2>
             <p className="menu-hero-text">
-              Blaai deur etes, daaglikse spesiale aanbiedinge en kosopsies wat
-              tydens die toernooi beskikbaar is.
+              Browse meals, daily specials, and food options available during
+              the tournament
             </p>
           </div>
 

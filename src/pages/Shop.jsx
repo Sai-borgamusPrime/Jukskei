@@ -59,7 +59,7 @@ function Shop() {
         <header className="shop-header">
           <div>
             <h1 className="shop-title">JUKSKEI</h1>
-            <p className="shop-kicker">Toernooi Handelsware</p>
+            <p className="shop-kicker">Tournament Merchandise</p>
           </div>
         </header>
 
@@ -68,8 +68,8 @@ function Shop() {
             <p className="shop-eyebrow">Gift Store</p>
             <h2 className="shop-page-heading">Gift Shop</h2>
             <p className="shop-hero-text">
-              Blaai deur amptelike geleentheidsware, aandenkinge en
-              toernooi-bykomstighede.
+              Browse official event merchandise, souvenirs, and tournament
+              accessories.
             </p>
           </div>
 

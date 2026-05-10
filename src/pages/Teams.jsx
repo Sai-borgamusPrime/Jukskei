@@ -2,7 +2,6 @@ import { Search, SlidersHorizontal, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
-import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicDivisions, getPublicTeams } from "../services/publicApi";
 import "./Teams.css";
@@ -73,11 +72,7 @@ function Teams() {
         <header className="teams-header">
           <div>
             <h1 className="teams-title">JUKSKEI</h1>
-            <p className="teams-kicker">Spanranglys</p>
-          </div>
-
-          <div>
-            <SignOutButton />
+            <p className="teams-kicker">Team Rankings</p>
           </div>
         </header>
 
@@ -86,8 +81,8 @@ function Teams() {
             <p className="teams-eyebrow">Tournament Rankings</p>
             <h2 className="teams-page-heading">Teams</h2>
             <p className="teams-hero-text">
-              Blaai deur afdelings, soek spanne en sien ranglyste gebaseer op
-              totale telling.
+              Browse divisions, search teams, and view rankings based on total
+              score.
             </p>
           </div>
 

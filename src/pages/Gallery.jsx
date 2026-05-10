@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Images, X } from "lucide-react";
 import BottomNav from "../components/BottomNav";
-import SignOutButton from "../components/SignOutButton/SignOutButton";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicGallery } from "../services/publicApi";
 import "./Gallery.css";
@@ -33,11 +32,7 @@ function Gallery() {
         <header className="gallery-header">
           <div>
             <h1 className="gallery-title">JUKSKEI</h1>
-            <p className="gallery-kicker">Toernooi Herinneringe</p>
-          </div>
-
-          <div>
-            <SignOutButton />
+            <p className="gallery-kicker">Tournament Memories</p>
           </div>
         </header>
 
@@ -48,7 +43,7 @@ function Gallery() {
                 <p className="gallery-eyebrow">Photo Gallery</p>
                 <h2 className="page-heading">Gallery</h2>
                 <p className="gallery-subtitle">
-                  Kyk na hoogtepunte, span-oomblikke en geleentheidsfoto’s.
+                  View highlights, team moments, and event photos.
                 </p>
               </div>
 

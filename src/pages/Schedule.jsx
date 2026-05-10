@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import BottomNav from "../components/BottomNav";
-import SignOutButton from "../components/SignOutButton/SignOutButton";
 import useTheme from "../hooks/useTheme";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicScheduleEvents } from "../services/publicApi";
@@ -96,11 +95,7 @@ function Schedule() {
         <header className="schedule-header">
           <div>
             <h1 className="schedule-title">JUKSKEI</h1>
-            <p className="schedule-kicker">Toernooi Program</p>
-          </div>
-
-          <div>
-            <SignOutButton />
+            <p className="schedule-kicker">Tournament Program</p>
           </div>
         </header>
 
@@ -109,7 +104,7 @@ function Schedule() {
             <p className="schedule-eyebrow">Event Calendar</p>
             <h2 className="page-heading">Match Schedule</h2>
             <p className="schedule-hero-text">
-              Blaai deur toernooi-datums en sien daaglikse geleenthede.
+              Browse tournament dates and view daily events.
             </p>
           </div>
 
