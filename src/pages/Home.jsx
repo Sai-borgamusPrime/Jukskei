@@ -1,12 +1,44 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Radio } from "lucide-react";
 import BottomNav from "../components/BottomNav";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicMatches } from "../services/publicApi";
 import "./Home.css";
 
+const STATUS_ORDER = [
+  "All",
+  "Live",
+  "Upcoming",
+  "Past",
+  "Completed",
+  "Cancelled",
+];
+
+function getStatusClass(status) {
+  const normalStatus = String(status || "").toLowerCase();
+
+  if (normalStatus === "live") return "live";
+  if (normalStatus === "upcoming") return "upcoming";
+  if (normalStatus === "cancelled" || normalStatus === "canceled") {
+    return "cancelled";
+  }
+
+  return "finished";
+}
+
+function getStatusLabel(status) {
+  if (!status || status === "All") return "All Matches";
+  if (status === "Past") return "Past Matches";
+  return `${status} Matches`;
+}
+
+function getTeamLogo(src) {
+  if (!src) return "/logo.webp";
+  return String(src).replace(/\.(png|jpg|jpeg)$/i, ".webp");
+}
+
 function MatchCard({ match }) {
-  const statusClass = match.status === "Live" ? "live" : "finished";
+  const statusClass = getStatusClass(match.status);
 
   return (
     <article className="match-card">
@@ -22,9 +54,12 @@ function MatchCard({ match }) {
       <div className="match-card-body">
         <div className="team-block">
           <img
-            src={match.teamA.logo}
+            src={getTeamLogo(match.teamA.logo)}
             alt={match.teamA.name}
             className="team-logo"
+            onError={(event) => {
+              event.currentTarget.src = "/logo.webp";
+            }}
           />
           <span className="team-name">{match.teamA.name}</span>
         </div>
@@ -37,9 +72,12 @@ function MatchCard({ match }) {
 
         <div className="team-block">
           <img
-            src={match.teamB.logo}
+            src={getTeamLogo(match.teamB.logo)}
             alt={match.teamB.name}
             className="team-logo"
+            onError={(event) => {
+              event.currentTarget.src = "/logo.webp";
+            }}
           />
           <span className="team-name">{match.teamB.name}</span>
         </div>
@@ -55,7 +93,7 @@ function MatchCard({ match }) {
 }
 
 function Home() {
-  const [activeTab, setActiveTab] = useState("live");
+  const [activeTab, setActiveTab] = useState("All");
 
   const {
     data: matches = [],
@@ -63,10 +101,32 @@ function Home() {
     error,
   } = usePublicQuery(getPublicMatches, [], ["matches", "teams"]);
 
+  const availableStatuses = useMemo(() => {
+    const statusesFromMatches = Array.from(
+      new Set(matches.map((match) => match.status).filter(Boolean)),
+    );
+
+    const orderedStatuses = STATUS_ORDER.filter(
+      (status) => status === "All" || statusesFromMatches.includes(status),
+    );
+
+    const customStatuses = statusesFromMatches.filter(
+      (status) => !STATUS_ORDER.includes(status),
+    );
+
+    return [...orderedStatuses, ...customStatuses];
+  }, [matches]);
+
+  useEffect(() => {
+    if (!availableStatuses.includes(activeTab)) {
+      setActiveTab("All");
+    }
+  }, [activeTab, availableStatuses]);
+
   const filteredMatches = useMemo(() => {
-    return activeTab === "live"
-      ? matches.filter((match) => match.status === "Live")
-      : matches.filter((match) => match.status !== "Live");
+    if (activeTab === "All") return matches;
+
+    return matches.filter((match) => match.status === activeTab);
   }, [activeTab, matches]);
 
   return (
@@ -88,30 +148,23 @@ function Home() {
           </div>
 
           <div className="home-tabs" role="tablist" aria-label="Match filters">
-            <button
-              className={`tab-button ${activeTab === "live" ? "active" : ""}`}
-              onClick={() => setActiveTab("live")}
-              type="button"
-            >
-              <Radio size={14} strokeWidth={2.2} />
-              <span>Live</span>
-            </button>
-
-            <button
-              className={`tab-button ${activeTab === "past" ? "active" : ""}`}
-              onClick={() => setActiveTab("past")}
-              type="button"
-            >
-              <span>Past Matches</span>
-            </button>
+            {availableStatuses.map((status) => (
+              <button
+                key={status}
+                className={`tab-button ${activeTab === status ? "active" : ""}`}
+                onClick={() => setActiveTab(status)}
+                type="button"
+              >
+                {status === "Live" && <Radio size={14} strokeWidth={2.2} />}
+                <span>{status === "All" ? "All" : status}</span>
+              </button>
+            ))}
           </div>
         </section>
 
         <section className="matches-section">
           <div className="section-heading-row">
-            <h2 className="section-title">
-              {activeTab === "live" ? "Live Matches" : "Past Matches"}
-            </h2>
+            <h2 className="section-title">{getStatusLabel(activeTab)}</h2>
 
             <span className="match-count">
               {filteredMatches.length}{" "}

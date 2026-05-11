@@ -23,14 +23,12 @@ function normalizeStatus(value) {
   const lower = status.toLowerCase();
 
   if (lower === "live") return "Live";
-
-  if (lower === "past" || lower === "completed" || lower === "finished") {
-    return "Past";
-  }
-
+  if (lower === "upcoming") return "Upcoming";
+  if (lower === "past") return "Past";
+  if (lower === "completed" || lower === "finished") return "Completed";
   if (lower === "cancelled" || lower === "canceled") return "Cancelled";
 
-  return "Upcoming";
+  return status;
 }
 
 function cleanSlug(value) {

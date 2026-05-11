@@ -495,3 +495,13 @@
     margin-bottom: 8px;
   }
 }
+
+.match-status.upcoming {
+  background: rgba(47, 111, 255, 0.1);
+  color: #2f6fff;
+}
+
+.match-status.cancelled {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+}
