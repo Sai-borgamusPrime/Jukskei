@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import BottomNav from "../components/BottomNav";
-import useTheme from "../hooks/useTheme";
 import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicScheduleEvents } from "../services/publicApi";
 import "./Schedule.css";
@@ -21,21 +20,77 @@ const months = [
   "December",
 ];
 
-function formatDate(date) {
-  return date.toISOString().split("T")[0];
+const weekdays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+function toISODateKey(year, monthIndex, day) {
+  const yyyy = String(year);
+  const mm = String(monthIndex + 1).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+
+  return `${yyyy}-${mm}-${dd}`;
 }
 
-function displayDate(date) {
-  return date.toLocaleDateString("en-GB").replaceAll("/", "-");
+function getDatePartsFromKey(dateKey) {
+  const [year, month, day] = String(dateKey || "")
+    .split("-")
+    .map(Number);
+
+  return {
+    year,
+    monthIndex: month - 1,
+    day,
+  };
+}
+
+function formatDisplayDate(dateKey) {
+  if (!dateKey) return "";
+
+  const [year, month, day] = String(dateKey).split("-");
+
+  if (!year || !month || !day) return dateKey;
+
+  return `${day}-${month}-${year}`;
+}
+
+function normaliseEventDate(dateValue) {
+  if (!dateValue) return "";
+
+  const value = String(dateValue);
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return value;
+  }
+
+  return toISODateKey(
+    parsedDate.getFullYear(),
+    parsedDate.getMonth(),
+    parsedDate.getDate(),
+  );
+}
+
+function normaliseEventTime(timeValue) {
+  if (!timeValue) return "";
+
+  return String(timeValue).slice(0, 5);
+}
+
+function compareTimes(a, b) {
+  return normaliseEventTime(a.time).localeCompare(normaliseEventTime(b.time));
 }
 
 function Schedule() {
-  const today = new Date(2026, 4, 24);
-  useTheme();
+  const initialSelectedDate = "2026-05-25";
+  const initialDateParts = getDatePartsFromKey(initialSelectedDate);
 
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-  const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [selectedDate, setSelectedDate] = useState(today);
+  const [currentMonth, setCurrentMonth] = useState(initialDateParts.monthIndex);
+  const [currentYear, setCurrentYear] = useState(initialDateParts.year);
+  const [selectedDateKey, setSelectedDateKey] = useState(initialSelectedDate);
 
   const {
     data: events = [],
@@ -43,51 +98,81 @@ function Schedule() {
     error,
   } = usePublicQuery(getPublicScheduleEvents, [], ["schedule_events"]);
 
+  const normalisedEvents = useMemo(() => {
+    return events.map((event) => ({
+      ...event,
+      date: normaliseEventDate(event.date),
+      time: normaliseEventTime(event.time),
+    }));
+  }, [events]);
+
+  const eventDateSet = useMemo(() => {
+    return new Set(normalisedEvents.map((event) => event.date).filter(Boolean));
+  }, [normalisedEvents]);
+
   const calendarDays = useMemo(() => {
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
     return [
       ...Array(firstDay).fill(null),
-      ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+      ...Array.from({ length: daysInMonth }, (_, index) => index + 1),
     ];
   }, [currentMonth, currentYear]);
 
-  const selectedDateKey = formatDate(selectedDate);
+  const selectedEvents = useMemo(() => {
+    return normalisedEvents
+      .filter((event) => event.date === selectedDateKey)
+      .sort(compareTimes);
+  }, [normalisedEvents, selectedDateKey]);
 
-  const selectedEvents = events
-    .filter((event) => event.date === selectedDateKey)
-    .sort((a, b) => a.time.localeCompare(b.time));
+  const monthEvents = useMemo(() => {
+    const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(
+      2,
+      "0",
+    )}`;
 
-  const monthEvents = events.filter((event) => {
-    const eventDate = new Date(event.date);
-    return (
-      eventDate.getMonth() === currentMonth &&
-      eventDate.getFullYear() === currentYear
+    return normalisedEvents.filter((event) =>
+      String(event.date).startsWith(monthPrefix),
     );
-  });
+  }, [normalisedEvents, currentMonth, currentYear]);
 
   const goToPreviousMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
-    } else {
-      setCurrentMonth(currentMonth - 1);
-    }
+    setCurrentMonth((previousMonth) => {
+      if (previousMonth === 0) {
+        setCurrentYear((previousYear) => previousYear - 1);
+        return 11;
+      }
+
+      return previousMonth - 1;
+    });
   };
 
   const goToNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
-    } else {
-      setCurrentMonth(currentMonth + 1);
-    }
+    setCurrentMonth((previousMonth) => {
+      if (previousMonth === 11) {
+        setCurrentYear((previousYear) => previousYear + 1);
+        return 0;
+      }
+
+      return previousMonth + 1;
+    });
+  };
+
+  const handleMonthChange = (event) => {
+    setCurrentMonth(Number(event.target.value));
+  };
+
+  const handleYearChange = (event) => {
+    setCurrentYear(Number(event.target.value));
   };
 
   const selectDay = (day) => {
-    setSelectedDate(new Date(currentYear, currentMonth, day));
+    const dateKey = toISODateKey(currentYear, currentMonth, day);
+    setSelectedDateKey(dateKey);
   };
+
+  const selectedDateParts = getDatePartsFromKey(selectedDateKey);
 
   return (
     <main className="schedule-page">
@@ -129,7 +214,8 @@ function Schedule() {
               <select
                 className="calendar-select"
                 value={currentMonth}
-                onChange={(e) => setCurrentMonth(Number(e.target.value))}
+                onChange={handleMonthChange}
+                aria-label="Select month"
               >
                 {months.map((month, index) => (
                   <option key={month} value={index}>
@@ -141,13 +227,16 @@ function Schedule() {
               <select
                 className="calendar-select year-select"
                 value={currentYear}
-                onChange={(e) => setCurrentYear(Number(e.target.value))}
+                onChange={handleYearChange}
+                aria-label="Select year"
               >
-                {Array.from({ length: 11 }, (_, i) => 2024 + i).map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
+                {Array.from({ length: 11 }, (_, index) => 2024 + index).map(
+                  (year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ),
+                )}
               </select>
 
               <button
@@ -161,42 +250,39 @@ function Schedule() {
             </div>
 
             <div className="calendar-weekdays">
-              <span>Su</span>
-              <span>Mo</span>
-              <span>Tu</span>
-              <span>We</span>
-              <span>Th</span>
-              <span>Fr</span>
-              <span>Sa</span>
+              {weekdays.map((weekday) => (
+                <span key={weekday}>{weekday}</span>
+              ))}
             </div>
 
             <div className="calendar-grid">
-              {calendarDays.map((day, index) =>
-                day ? (
+              {calendarDays.map((day, index) => {
+                if (!day) {
+                  return <span key={`empty-${index}`} />;
+                }
+
+                const dateKey = toISODateKey(currentYear, currentMonth, day);
+                const isSelected =
+                  selectedDateParts.year === currentYear &&
+                  selectedDateParts.monthIndex === currentMonth &&
+                  selectedDateParts.day === day;
+
+                const hasEvents = eventDateSet.has(dateKey);
+
+                return (
                   <button
-                    key={index}
-                    className={`calendar-day ${
-                      selectedDate.getDate() === day &&
-                      selectedDate.getMonth() === currentMonth &&
-                      selectedDate.getFullYear() === currentYear
-                        ? "active-day"
-                        : ""
-                    }`}
+                    key={dateKey}
+                    className={`calendar-day ${isSelected ? "active-day" : ""}`}
                     onClick={() => selectDay(day)}
                     type="button"
+                    aria-label={`Select ${formatDisplayDate(dateKey)}`}
                   >
                     {day}
 
-                    {events.some(
-                      (event) =>
-                        event.date ===
-                        formatDate(new Date(currentYear, currentMonth, day)),
-                    ) && <span className="event-indicator"></span>}
+                    {hasEvents && <span className="event-indicator" />}
                   </button>
-                ) : (
-                  <span key={index}></span>
-                ),
-              )}
+                );
+              })}
             </div>
           </div>
 
@@ -204,7 +290,7 @@ function Schedule() {
             <div className="selected-date-row">
               <div>
                 <p className="today-label">SELECTED DATE</p>
-                <h3>{displayDate(selectedDate)}</h3>
+                <h3>{formatDisplayDate(selectedDateKey)}</h3>
               </div>
 
               <span className="selected-count">
@@ -223,10 +309,11 @@ function Schedule() {
               ) : (
                 selectedEvents.map((item) => (
                   <article key={item.id} className="schedule-card">
-                    <div className={`schedule-dot ${item.color}`}></div>
+                    <div className={`schedule-dot ${item.color}`} />
 
                     <div className="schedule-card-content">
-                      <p className="schedule-time">{item.time}</p>
+                      <p className="schedule-time">{item.time || "Time TBC"}</p>
+
                       <p className="schedule-match">{item.title}</p>
 
                       {item.location && (
