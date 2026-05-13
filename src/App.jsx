@@ -31,6 +31,8 @@ import { CartProvider } from "./context/CartContext";
 import CartDrawer from "./components/Cart/CartDrawer";
 import FloatingCartButton from "./components/Cart/FloatingCartButton";
 
+import TournamentInfoButton from "./components/TournamentInfoButton/TournamentInfoButton";
+
 function Placeholder({ title }) {
   return (
     <main style={{ minHeight: "100vh", padding: "2rem" }}>
@@ -238,6 +240,7 @@ function App() {
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
 
+      <TournamentInfoButton />
       <CompanyCredit />
       <AdminAccessButton />
       <FloatingCartButton />

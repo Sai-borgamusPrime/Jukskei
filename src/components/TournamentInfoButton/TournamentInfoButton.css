@@ -1,0 +1,253 @@
+.tournament-info-button {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+  z-index: 1200;
+
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 999px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.35), transparent 34%),
+    linear-gradient(135deg, #1769ff, #003a9f);
+
+  box-shadow:
+    0 14px 32px rgba(0, 45, 130, 0.32),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.tournament-info-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  filter: brightness(1.05);
+  box-shadow:
+    0 18px 42px rgba(0, 45, 130, 0.38),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.tournament-info-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.tournament-info-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: clamp(16px, 4vw, 34px);
+}
+
+.tournament-info-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 10, 35, 0.68);
+  backdrop-filter: blur(10px);
+}
+
+.tournament-info-modal {
+  position: relative;
+  z-index: 1;
+
+  width: min(100%, 780px);
+  max-height: min(82vh, 760px);
+
+  display: flex;
+  flex-direction: column;
+
+  border-radius: clamp(22px, 4vw, 32px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 248, 255, 0.98));
+  color: #0f172a;
+
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.32),
+    inset 0 0 0 1px rgba(23, 105, 255, 0.12);
+
+  overflow: hidden;
+  animation: tournamentInfoPop 220ms ease both;
+}
+
+.tournament-info-modal-header {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  padding: clamp(18px, 4vw, 30px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+
+  background:
+    radial-gradient(circle at top left, rgba(23, 105, 255, 0.16), transparent 42%),
+    rgba(255, 255, 255, 0.78);
+}
+
+.tournament-info-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+
+  margin-bottom: 0.65rem;
+  padding: 0.38rem 0.75rem;
+
+  border-radius: 999px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1769ff, #003a9f);
+
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tournament-info-modal-header h2 {
+  margin: 0;
+  color: #001a4d;
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  line-height: 1.12;
+  font-weight: 950;
+}
+
+.tournament-info-close {
+  flex: 0 0 auto;
+
+  width: 42px;
+  height: 42px;
+
+  border: 0;
+  border-radius: 999px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #001a4d;
+  background: rgba(0, 26, 77, 0.08);
+
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.tournament-info-close:hover {
+  transform: rotate(6deg) scale(1.04);
+  background: rgba(0, 26, 77, 0.14);
+}
+
+.tournament-info-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+
+  padding: clamp(18px, 4vw, 32px);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.tournament-info-body p {
+  margin: 0 0 1rem;
+  color: #26324a;
+
+  font-size: clamp(0.96rem, 2.6vw, 1.05rem);
+  line-height: 1.75;
+}
+
+.tournament-info-signature {
+  margin-top: 1.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  color: #001a4d;
+}
+
+.tournament-info-signature strong {
+  font-size: 1.05rem;
+  font-weight: 950;
+}
+
+.tournament-info-signature span {
+  font-size: 0.95rem;
+  color: #52627a;
+  font-weight: 700;
+}
+
+@keyframes tournamentInfoPop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .tournament-info-button {
+    width: 42px;
+    height: 42px;
+    top: max(12px, env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+  }
+
+  .tournament-info-overlay {
+    align-items: flex-end;
+    padding: 12px;
+  }
+
+  .tournament-info-modal {
+    width: 100%;
+    max-height: 86vh;
+    border-radius: 26px 26px 20px 20px;
+  }
+
+  .tournament-info-modal-header {
+    padding: 18px;
+  }
+
+  .tournament-info-body {
+    padding: 18px;
+  }
+
+  .tournament-info-close {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+@media (max-width: 380px) {
+  .tournament-info-modal-header {
+    gap: 0.7rem;
+  }
+
+  .tournament-info-modal-header h2 {
+    font-size: 1.15rem;
+  }
+
+  .tournament-info-body p {
+    font-size: 0.93rem;
+    line-height: 1.65;
+  }
+}
