@@ -67,7 +67,27 @@ function formatTimeLabel(value) {
 }
 
 function getSafeImage(value) {
-  return normalizeText(value, "/logo.webp");
+  const image = normalizeText(value, "/logo.webp");
+
+  if (!image) return "/logo.webp";
+
+  /*
+    Only convert local public assets.
+    Do not rewrite Supabase Storage URLs, because uploaded PNG/JPG files
+    must keep their real extension.
+  */
+  if (image.startsWith("/")) {
+    return image.replace(/\.(png|jpg|jpeg)$/i, ".webp");
+  }
+
+  return image;
+}
+
+function normalizeLookupName(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
 }
 
 function mapTeam(row, divisionLookup = new Map()) {
@@ -89,59 +109,17 @@ function mapTeam(row, divisionLookup = new Map()) {
   };
 }
 
-function getJoinedTeam(match, side) {
-  const value = side === "a" ? match.team_a : match.team_b;
+function getTeamFromMatch(row, side, teamLookupById, teamLookupByName) {
+  const teamId = side === "a" ? row.team_a_id : row.team_b_id;
+  const teamName = side === "a" ? row.team_a_name : row.team_b_name;
 
-  if (Array.isArray(value)) return value[0] || null;
+  const byId = teamId ? teamLookupById.get(teamId) : null;
+  if (byId) return byId;
 
-  return value || null;
-}
+  const byName = teamLookupByName.get(normalizeLookupName(teamName));
+  if (byName) return byName;
 
-function mapMatch(row, teamLookup = new Map()) {
-  const teamA = teamLookup.get(row.team_a_id) || getJoinedTeam(row, "a");
-  const teamB = teamLookup.get(row.team_b_id) || getJoinedTeam(row, "b");
-  const status = normalizeStatus(row.status);
-
-  const teamAName = normalizeText(row.team_a_name || teamA?.name, "Team A");
-  const teamBName = normalizeText(row.team_b_name || teamB?.name, "Team B");
-
-  return {
-    id: row.id,
-    title: normalizeText(row.title) || `${teamAName} vs ${teamBName}`,
-    date: formatDateLabel(row.match_date),
-    time: formatTimeLabel(row.match_date),
-    datetime: row.match_date
-      ? `${formatDateLabel(row.match_date)} • ${formatTimeLabel(
-          row.match_date
-        )}`
-      : "Date and time TBC",
-    matchDate: row.match_date,
-    match_date: row.match_date,
-    status,
-    venue: normalizeText(row.venue),
-    roundLabel: normalizeText(row.round_label),
-    round_label: normalizeText(row.round_label),
-    isFeatured: row.is_featured === true,
-    is_featured: row.is_featured === true,
-    teamAId: row.team_a_id,
-    teamBId: row.team_b_id,
-    team_a_id: row.team_a_id,
-    team_b_id: row.team_b_id,
-    teamA: {
-      id: row.team_a_id,
-      name: teamAName,
-      logo: getSafeImage(teamA?.logo_url),
-    },
-    teamB: {
-      id: row.team_b_id,
-      name: teamBName,
-      logo: getSafeImage(teamB?.logo_url),
-    },
-    teamAScore: toNumber(row.team_a_score),
-    teamBScore: toNumber(row.team_b_score),
-    team_a_score: toNumber(row.team_a_score),
-    team_b_score: toNumber(row.team_b_score),
-  };
+  return null;
 }
 
 function mapScheduleEvent(row) {
@@ -206,18 +184,17 @@ export async function getPublicDivisions() {
 export async function getPublicTeams() {
   assertSupabase();
 
-  const [{ data: teams, error: teamsError }, { data: divisions, error: divisionsError }] =
-    await Promise.all([
-      supabase
-        .from("teams")
-        .select("*")
-        .eq("is_active", true)
-        .order("total_score", { ascending: false }),
-      supabase
-        .from("team_divisions")
-        .select("code, name")
-        .eq("is_active", true),
-    ]);
+  const [
+    { data: teams, error: teamsError },
+    { data: divisions, error: divisionsError },
+  ] = await Promise.all([
+    supabase
+      .from("teams")
+      .select("*")
+      .eq("is_active", true)
+      .order("total_score", { ascending: false }),
+    supabase.from("team_divisions").select("code, name").eq("is_active", true),
+  ]);
 
   if (teamsError) throw teamsError;
   if (divisionsError) throw divisionsError;
@@ -232,21 +209,86 @@ export async function getPublicTeams() {
 export async function getPublicMatches() {
   assertSupabase();
 
-  const [{ data: matchRows, error: matchError }, { data: teamRows, error: teamError }] =
-    await Promise.all([
-      supabase
-        .from("matches")
-        .select("*")
-        .order("created_at", { ascending: false }),
-      supabase.from("teams").select("id,name,logo_url"),
-    ]);
+  const [
+    { data: matchRows, error: matchError },
+    { data: teamRows, error: teamError },
+  ] = await Promise.all([
+    supabase
+      .from("matches")
+      .select("*")
+      .order("match_date", { ascending: true }),
+    supabase
+      .from("teams")
+      .select("id, name, logo_url, banner_logo_url, is_active"),
+  ]);
 
   if (matchError) throw matchError;
   if (teamError) throw teamError;
 
-  const teamLookup = new Map((teamRows || []).map((team) => [team.id, team]));
+  const teamLookupById = new Map();
+  const teamLookupByName = new Map();
 
-  return (matchRows || []).map((row) => mapMatch(row, teamLookup));
+  (teamRows || []).forEach((team) => {
+    teamLookupById.set(team.id, team);
+    teamLookupByName.set(normalizeLookupName(team.name), team);
+  });
+
+  return (matchRows || []).map((row) => {
+    const teamA = getTeamFromMatch(row, "a", teamLookupById, teamLookupByName);
+    const teamB = getTeamFromMatch(row, "b", teamLookupById, teamLookupByName);
+
+    const teamAName = normalizeText(row.team_a_name || teamA?.name, "Team A");
+    const teamBName = normalizeText(row.team_b_name || teamB?.name, "Team B");
+
+    const teamALogo = getSafeImage(teamA?.logo_url || teamA?.banner_logo_url);
+    const teamBLogo = getSafeImage(teamB?.logo_url || teamB?.banner_logo_url);
+
+    return {
+      id: row.id,
+      title: normalizeText(row.title) || `${teamAName} vs ${teamBName}`,
+
+      date: formatDateLabel(row.match_date),
+      time: formatTimeLabel(row.match_date),
+      datetime: row.match_date
+        ? `${formatDateLabel(row.match_date)} • ${formatTimeLabel(
+            row.match_date
+          )}`
+        : "Date and time TBC",
+
+      matchDate: row.match_date,
+      match_date: row.match_date,
+
+      status: normalizeStatus(row.status),
+      venue: normalizeText(row.venue),
+      roundLabel: normalizeText(row.round_label),
+      round_label: normalizeText(row.round_label),
+
+      isFeatured: row.is_featured === true,
+      is_featured: row.is_featured === true,
+
+      teamAId: row.team_a_id || teamA?.id || null,
+      teamBId: row.team_b_id || teamB?.id || null,
+      team_a_id: row.team_a_id || teamA?.id || null,
+      team_b_id: row.team_b_id || teamB?.id || null,
+
+      teamA: {
+        id: row.team_a_id || teamA?.id || null,
+        name: teamAName,
+        logo: teamALogo,
+      },
+
+      teamB: {
+        id: row.team_b_id || teamB?.id || null,
+        name: teamBName,
+        logo: teamBLogo,
+      },
+
+      teamAScore: toNumber(row.team_a_score),
+      teamBScore: toNumber(row.team_b_score),
+      team_a_score: toNumber(row.team_a_score),
+      team_b_score: toNumber(row.team_b_score),
+    };
+  });
 }
 
 export async function getPublicTeamDetails(slug) {
@@ -390,8 +432,8 @@ export async function getPublicGallery() {
     return {
       id: category.id,
       title: normalizeText(category.title),
-      coverImage,
-      cover_image_url: coverImage,
+      coverImage: getSafeImage(coverImage),
+      cover_image_url: getSafeImage(coverImage),
       fallbackImage: getSafeImage(category.fallback_image_url),
       fallback_image_url: getSafeImage(category.fallback_image_url),
       images: categoryImages.map((image) => ({
