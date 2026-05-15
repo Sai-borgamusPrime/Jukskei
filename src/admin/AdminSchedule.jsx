@@ -1,5 +1,15 @@
-import { useEffect, useState } from "react";
-import { CalendarDays, Edit3, Plus, Save, Trash2, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  CalendarDays,
+  Edit3,
+  Filter,
+  Plus,
+  RotateCcw,
+  Save,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import AdminLayout from "./AdminLayout";
 import {
   deleteRow,
@@ -17,6 +27,38 @@ const emptyForm = {
   is_active: true,
 };
 
+const dateFilterOptions = [
+  { value: "All", label: "All dates" },
+  { value: "Today", label: "Today" },
+  { value: "UpcomingDates", label: "Upcoming dates" },
+  { value: "PastDates", label: "Past dates" },
+  { value: "NoDate", label: "No date" },
+];
+
+const colorFilterOptions = [
+  { value: "All", label: "All colours" },
+  { value: "green", label: "Green" },
+  { value: "blue", label: "Blue" },
+  { value: "gold", label: "Gold" },
+  { value: "red", label: "Red" },
+];
+
+const statusFilterOptions = [
+  { value: "All", label: "All events" },
+  { value: "Active", label: "Active" },
+  { value: "Inactive", label: "Inactive" },
+];
+
+function parseEventDate(value) {
+  if (!value) return null;
+
+  const date = new Date(`${value}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) return null;
+
+  return date;
+}
+
 function AdminSchedule() {
   const [rows, setRows] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -25,6 +67,82 @@ function AdminSchedule() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateFilter, setDateFilter] = useState("All");
+  const [colorFilter, setColorFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+
+  const filteredRows = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    const now = new Date();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+
+    const tomorrowStart = new Date(todayStart);
+    tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+
+    return rows.filter((row) => {
+      const eventDate = parseEventDate(row.date);
+      const hasValidDate = Boolean(eventDate);
+      const isActive = row.is_active !== false;
+
+      const searchableText = [
+        row.title,
+        row.location,
+        row.date,
+        row.time,
+        row.color,
+        row.sort_order,
+        isActive ? "active" : "inactive",
+      ]
+        .filter((value) => value !== null && value !== undefined)
+        .join(" ")
+        .toLowerCase();
+
+      const matchesSearch = !query || searchableText.includes(query);
+
+      const matchesColor =
+        colorFilter === "All" ||
+        String(row.color || "").toLowerCase() === colorFilter.toLowerCase();
+
+      const matchesStatus =
+        statusFilter === "All" ||
+        (statusFilter === "Active" && isActive) ||
+        (statusFilter === "Inactive" && !isActive);
+
+      let matchesDate = true;
+
+      if (dateFilter === "Today") {
+        matchesDate =
+          hasValidDate && eventDate >= todayStart && eventDate < tomorrowStart;
+      }
+
+      if (dateFilter === "UpcomingDates") {
+        matchesDate = hasValidDate && eventDate >= todayStart;
+      }
+
+      if (dateFilter === "PastDates") {
+        matchesDate = hasValidDate && eventDate < todayStart;
+      }
+
+      if (dateFilter === "NoDate") {
+        matchesDate = !hasValidDate;
+      }
+
+      return matchesSearch && matchesColor && matchesStatus && matchesDate;
+    });
+  }, [rows, searchTerm, dateFilter, colorFilter, statusFilter]);
+
+  const hasActiveFilters =
+    searchTerm.trim() ||
+    dateFilter !== "All" ||
+    colorFilter !== "All" ||
+    statusFilter !== "All";
 
   const loadRows = async () => {
     setLoading(true);
@@ -54,6 +172,13 @@ function AdminSchedule() {
     setMessage("");
   };
 
+  const resetFilters = () => {
+    setSearchTerm("");
+    setDateFilter("All");
+    setColorFilter("All");
+    setStatusFilter("All");
+  };
+
   const editRow = (row) => {
     setEditingId(row.id);
     setForm({
@@ -65,6 +190,9 @@ function AdminSchedule() {
       sort_order: row.sort_order || 0,
       is_active: row.is_active !== false,
     });
+
+    setError("");
+    setMessage("");
   };
 
   const handleSubmit = async (event) => {
@@ -99,6 +227,7 @@ function AdminSchedule() {
     try {
       await deleteRow("schedule_events", id);
       await loadRows();
+
       if (editingId === id) resetForm();
     } catch (err) {
       setError(err.message || "Could not delete event.");
@@ -123,7 +252,12 @@ function AdminSchedule() {
             </div>
 
             {editingId && (
-              <button type="button" className="admin-icon-button" onClick={resetForm}>
+              <button
+                type="button"
+                className="admin-icon-button"
+                onClick={resetForm}
+                aria-label="Cancel event editing"
+              >
                 <X size={16} />
               </button>
             )}
@@ -204,19 +338,93 @@ function AdminSchedule() {
 
             <button type="submit" className="admin-button" disabled={saving}>
               {editingId ? <Save size={16} /> : <Plus size={16} />}
-              {saving ? "Saving..." : editingId ? "Save changes" : "Create event"}
+              {saving
+                ? "Saving..."
+                : editingId
+                  ? "Save changes"
+                  : "Create event"}
             </button>
           </form>
         </section>
 
         <section className="admin-card">
+          <div className="admin-records-toolbar">
+            <label className="admin-search-field">
+              <Search size={17} />
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by title, location, date, time, colour..."
+              />
+            </label>
+
+            <div className="admin-filter-strip">
+              <label className="admin-filter-field">
+                <span>Date</span>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                >
+                  {dateFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="admin-filter-field">
+                <span>Colour</span>
+                <select
+                  value={colorFilter}
+                  onChange={(e) => setColorFilter(e.target.value)}
+                >
+                  {colorFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="admin-filter-field">
+                <span>Status</span>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  {statusFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  className="admin-button secondary compact"
+                  onClick={resetFilters}
+                >
+                  <RotateCcw size={15} />
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="admin-card-header">
             <div>
-              <p className="admin-section-kicker">Records</p>
+              <p className="admin-section-kicker">
+                Records <Filter size={13} />
+              </p>
               <h2 className="admin-card-title">Schedule events</h2>
             </div>
 
-            <span className="admin-pill">{rows.length} events</span>
+            <span className="admin-pill">
+              {filteredRows.length} of {rows.length} events
+            </span>
           </div>
 
           <div className="admin-list">
@@ -224,8 +432,12 @@ function AdminSchedule() {
               <p className="admin-empty">Loading events...</p>
             ) : rows.length === 0 ? (
               <p className="admin-empty">No schedule events yet.</p>
+            ) : filteredRows.length === 0 ? (
+              <p className="admin-empty">
+                No schedule events found. Adjust your search or filters.
+              </p>
             ) : (
-              rows.map((row) => (
+              filteredRows.map((row) => (
                 <article className="admin-list-item" key={row.id}>
                   <div className="admin-list-icon">
                     <CalendarDays size={20} />
@@ -234,7 +446,9 @@ function AdminSchedule() {
                   <div>
                     <p className="admin-list-title">{row.title}</p>
                     <p className="admin-list-meta">
-                      {row.date} · {row.time} · {row.location || "No location"}
+                      {row.date || "No date"} · {row.time || "No time"} ·{" "}
+                      {row.location || "No location"} ·{" "}
+                      {row.is_active === false ? "Inactive" : "Active"}
                     </p>
                   </div>
 
@@ -243,6 +457,7 @@ function AdminSchedule() {
                       type="button"
                       className="admin-icon-button"
                       onClick={() => editRow(row)}
+                      aria-label={`Edit ${row.title}`}
                     >
                       <Edit3 size={16} />
                     </button>
@@ -251,6 +466,7 @@ function AdminSchedule() {
                       type="button"
                       className="admin-icon-button danger"
                       onClick={() => handleDelete(row.id)}
+                      aria-label={`Delete ${row.title}`}
                     >
                       <Trash2 size={16} />
                     </button>

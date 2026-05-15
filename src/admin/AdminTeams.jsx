@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Edit3, Plus, Save, Trash2, Users, X } from "lucide-react";
+import {
+  Edit3,
+  Filter,
+  Plus,
+  RotateCcw,
+  Save,
+  Search,
+  Trash2,
+  Users,
+  X,
+} from "lucide-react";
 import AdminLayout from "./AdminLayout";
 import {
   deleteDivision,
@@ -28,6 +38,8 @@ const emptyDivisionForm = {
   is_active: true,
 };
 
+const teamStatusOptions = ["All", "Active", "Inactive"];
+
 function makeDivisionCode(value) {
   return String(value || "")
     .trim()
@@ -53,6 +65,17 @@ function AdminTeams() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const [teamSearchTerm, setTeamSearchTerm] = useState("");
+  const [teamDivisionFilter, setTeamDivisionFilter] = useState("All");
+  const [teamStatusFilter, setTeamStatusFilter] = useState("All");
+
+  const divisionMap = useMemo(() => {
+    return divisions.reduce((acc, division) => {
+      acc[division.code] = division;
+      return acc;
+    }, {});
+  }, [divisions]);
+
   const activeDivisions = useMemo(() => {
     return divisions.filter((division) => division.is_active !== false);
   }, [divisions]);
@@ -60,9 +83,48 @@ function AdminTeams() {
   const defaultDivisionCode = activeDivisions[0]?.code || "";
 
   const getDivisionName = (code) => {
-    const division = divisions.find((item) => item.code === code);
+    const division = divisionMap[code];
     return division?.name || code || "-";
   };
+
+  const filteredRows = useMemo(() => {
+    const query = teamSearchTerm.trim().toLowerCase();
+
+    return rows.filter((row) => {
+      const divisionName =
+        divisionMap[row.division]?.name || row.division || "";
+      const isActive = row.is_active !== false;
+
+      const searchableText = [
+        row.name,
+        row.slug,
+        row.division,
+        divisionName,
+        row.total_score,
+        isActive ? "active" : "inactive",
+      ]
+        .filter((value) => value !== null && value !== undefined)
+        .join(" ")
+        .toLowerCase();
+
+      const matchesSearch = !query || searchableText.includes(query);
+
+      const matchesDivision =
+        teamDivisionFilter === "All" || row.division === teamDivisionFilter;
+
+      const matchesStatus =
+        teamStatusFilter === "All" ||
+        (teamStatusFilter === "Active" && isActive) ||
+        (teamStatusFilter === "Inactive" && !isActive);
+
+      return matchesSearch && matchesDivision && matchesStatus;
+    });
+  }, [rows, teamSearchTerm, teamDivisionFilter, teamStatusFilter, divisionMap]);
+
+  const hasActiveTeamFilters =
+    teamSearchTerm.trim() ||
+    teamDivisionFilter !== "All" ||
+    teamStatusFilter !== "All";
 
   const loadRows = async () => {
     setLoading(true);
@@ -129,6 +191,12 @@ function AdminTeams() {
     setError("");
   };
 
+  const resetTeamFilters = () => {
+    setTeamSearchTerm("");
+    setTeamDivisionFilter("All");
+    setTeamStatusFilter("All");
+  };
+
   const editRow = (row) => {
     setEditingId(row.id);
     setForm({
@@ -140,6 +208,9 @@ function AdminTeams() {
       total_score: row.total_score || 0,
       is_active: row.is_active !== false,
     });
+
+    setMessage("");
+    setError("");
   };
 
   const editDivision = (division) => {
@@ -150,6 +221,9 @@ function AdminTeams() {
       sort_order: division.sort_order || 0,
       is_active: division.is_active !== false,
     });
+
+    setMessage("");
+    setError("");
   };
 
   const handleUpload = async (field, file) => {
@@ -558,13 +632,70 @@ function AdminTeams() {
         </section>
 
         <section className="admin-card">
+          <div className="admin-records-toolbar">
+            <label className="admin-search-field">
+              <Search size={17} />
+              <input
+                value={teamSearchTerm}
+                onChange={(e) => setTeamSearchTerm(e.target.value)}
+                placeholder="Search by team name, division, slug, score..."
+              />
+            </label>
+
+            <div className="admin-filter-strip">
+              <label className="admin-filter-field">
+                <span>Division</span>
+                <select
+                  value={teamDivisionFilter}
+                  onChange={(e) => setTeamDivisionFilter(e.target.value)}
+                >
+                  <option value="All">All divisions</option>
+                  {divisions.map((division) => (
+                    <option key={division.id} value={division.code}>
+                      {division.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="admin-filter-field">
+                <span>Status</span>
+                <select
+                  value={teamStatusFilter}
+                  onChange={(e) => setTeamStatusFilter(e.target.value)}
+                >
+                  {teamStatusOptions.map((status) => (
+                    <option key={status} value={status}>
+                      {status === "All" ? "All teams" : status}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {hasActiveTeamFilters && (
+                <button
+                  type="button"
+                  className="admin-button secondary compact"
+                  onClick={resetTeamFilters}
+                >
+                  <RotateCcw size={15} />
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="admin-card-header">
             <div>
-              <p className="admin-section-kicker">Records</p>
+              <p className="admin-section-kicker">
+                Records <Filter size={13} />
+              </p>
               <h2 className="admin-card-title">Teams</h2>
             </div>
 
-            <span className="admin-pill">{rows.length} teams</span>
+            <span className="admin-pill">
+              {filteredRows.length} of {rows.length} teams
+            </span>
           </div>
 
           <div className="admin-list">
@@ -572,8 +703,12 @@ function AdminTeams() {
               <p className="admin-empty">Loading teams...</p>
             ) : rows.length === 0 ? (
               <p className="admin-empty">No teams yet.</p>
+            ) : filteredRows.length === 0 ? (
+              <p className="admin-empty">
+                No teams found. Adjust your search or filters.
+              </p>
             ) : (
-              rows.map((row) => (
+              filteredRows.map((row) => (
                 <article className="admin-list-item" key={row.id}>
                   {row.logo_url ? (
                     <img
@@ -591,7 +726,8 @@ function AdminTeams() {
                     <p className="admin-list-title">{row.name}</p>
                     <p className="admin-list-meta">
                       {getDivisionName(row.division)} · Score{" "}
-                      {row.total_score || 0}
+                      {row.total_score || 0} ·{" "}
+                      {row.is_active === false ? "Inactive" : "Active"}
                     </p>
                   </div>
 

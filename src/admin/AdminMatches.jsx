@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Edit3, Plus, Radio, Save, Trash2, X } from "lucide-react";
+import {
+  Edit3,
+  Filter,
+  Plus,
+  Radio,
+  RotateCcw,
+  Save,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import AdminLayout from "./AdminLayout";
 import {
   deleteRow,
@@ -23,6 +33,23 @@ const emptyForm = {
   is_featured: false,
 };
 
+const statusOptions = [
+  "All",
+  "Upcoming",
+  "Live",
+  "Past",
+  "Completed",
+  "Cancelled",
+];
+
+const dateFilterOptions = [
+  { value: "All", label: "All dates" },
+  { value: "Today", label: "Today" },
+  { value: "UpcomingDates", label: "Upcoming dates" },
+  { value: "PastDates", label: "Past dates" },
+  { value: "NoDate", label: "No date" },
+];
+
 function toDateTimeLocal(value) {
   if (!value) return "";
 
@@ -31,6 +58,26 @@ function toDateTimeLocal(value) {
   if (Number.isNaN(date.getTime())) return "";
 
   return date.toISOString().slice(0, 16);
+}
+
+function formatMatchDate(value) {
+  if (!value) return "No date";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "No date";
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
+function getMatchTitle(row) {
+  return (
+    row.title ||
+    `${row.team_a_name || "Team A"} vs ${row.team_b_name || "Team B"}`
+  );
 }
 
 function AdminMatches() {
@@ -43,6 +90,11 @@ function AdminMatches() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [teamFilter, setTeamFilter] = useState("All");
+  const [dateFilter, setDateFilter] = useState("All");
+
   const teamMap = useMemo(() => {
     return teams.reduce((acc, team) => {
       acc[team.id] = team;
@@ -50,12 +102,91 @@ function AdminMatches() {
     }, {});
   }, [teams]);
 
+  const filteredMatches = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    const selectedTeamName =
+      teamFilter !== "All" ? teamMap[teamFilter]?.name?.toLowerCase() : "";
+
+    const now = new Date();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const tomorrowStart = new Date(todayStart);
+    tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+
+    return matches.filter((row) => {
+      const matchDate = row.match_date ? new Date(row.match_date) : null;
+      const hasValidDate = matchDate && !Number.isNaN(matchDate.getTime());
+
+      const searchableText = [
+        getMatchTitle(row),
+        row.team_a_name,
+        row.team_b_name,
+        row.team_a_score,
+        row.team_b_score,
+        row.venue,
+        row.status,
+        row.round_label,
+        formatMatchDate(row.match_date),
+      ]
+        .filter((value) => value !== null && value !== undefined)
+        .join(" ")
+        .toLowerCase();
+
+      const matchesSearch = !query || searchableText.includes(query);
+
+      const matchesStatus =
+        statusFilter === "All" ||
+        String(row.status || "").toLowerCase() === statusFilter.toLowerCase();
+
+      const matchesTeam =
+        teamFilter === "All" ||
+        String(row.team_a_id || "") === String(teamFilter) ||
+        String(row.team_b_id || "") === String(teamFilter) ||
+        String(row.team_a_name || "").toLowerCase() === selectedTeamName ||
+        String(row.team_b_name || "").toLowerCase() === selectedTeamName;
+
+      let matchesDate = true;
+
+      if (dateFilter === "Today") {
+        matchesDate =
+          hasValidDate && matchDate >= todayStart && matchDate < tomorrowStart;
+      }
+
+      if (dateFilter === "UpcomingDates") {
+        matchesDate = hasValidDate && matchDate >= todayStart;
+      }
+
+      if (dateFilter === "PastDates") {
+        matchesDate = hasValidDate && matchDate < todayStart;
+      }
+
+      if (dateFilter === "NoDate") {
+        matchesDate = !hasValidDate;
+      }
+
+      return matchesSearch && matchesStatus && matchesTeam && matchesDate;
+    });
+  }, [matches, searchTerm, statusFilter, teamFilter, dateFilter, teamMap]);
+
+  const hasActiveFilters =
+    searchTerm.trim() ||
+    statusFilter !== "All" ||
+    teamFilter !== "All" ||
+    dateFilter !== "All";
+
   const loadData = async () => {
     setLoading(true);
     setError("");
 
     try {
-      const [teamRows, matchRows] = await Promise.all([listTeams(), listMatches()]);
+      const [teamRows, matchRows] = await Promise.all([
+        listTeams(),
+        listMatches(),
+      ]);
+
       setTeams(teamRows);
       setMatches(matchRows);
     } catch (err) {
@@ -92,6 +223,13 @@ function AdminMatches() {
     setError("");
   };
 
+  const resetFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("All");
+    setTeamFilter("All");
+    setDateFilter("All");
+  };
+
   const editRow = (row) => {
     setEditingId(row.id);
     setForm({
@@ -108,6 +246,9 @@ function AdminMatches() {
       round_label: row.round_label || "",
       is_featured: Boolean(row.is_featured),
     });
+
+    setMessage("");
+    setError("");
   };
 
   const handleSubmit = async (event) => {
@@ -142,6 +283,7 @@ function AdminMatches() {
     try {
       await deleteRow("matches", id);
       await loadData();
+
       if (editingId === id) resetForm();
     } catch (err) {
       setError(err.message || "Could not delete match.");
@@ -166,7 +308,12 @@ function AdminMatches() {
             </div>
 
             {editingId && (
-              <button type="button" className="admin-icon-button" onClick={resetForm}>
+              <button
+                type="button"
+                className="admin-icon-button"
+                onClick={resetForm}
+                aria-label="Cancel editing"
+              >
                 <X size={16} />
               </button>
             )}
@@ -303,19 +450,94 @@ function AdminMatches() {
 
             <button type="submit" className="admin-button" disabled={saving}>
               {editingId ? <Save size={16} /> : <Plus size={16} />}
-              {saving ? "Saving..." : editingId ? "Save changes" : "Create match"}
+              {saving
+                ? "Saving..."
+                : editingId
+                  ? "Save changes"
+                  : "Create match"}
             </button>
           </form>
         </section>
 
         <section className="admin-card">
+          <div className="admin-records-toolbar">
+            <label className="admin-search-field">
+              <Search size={17} />
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by team, title, venue, round, score..."
+              />
+            </label>
+
+            <div className="admin-filter-strip">
+              <label className="admin-filter-field">
+                <span>Status</span>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  {statusOptions.map((status) => (
+                    <option value={status} key={status}>
+                      {status === "All" ? "All statuses" : status}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="admin-filter-field">
+                <span>Team</span>
+                <select
+                  value={teamFilter}
+                  onChange={(e) => setTeamFilter(e.target.value)}
+                >
+                  <option value="All">All teams</option>
+                  {teams.map((team) => (
+                    <option value={team.id} key={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="admin-filter-field">
+                <span>Date</span>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                >
+                  {dateFilterOptions.map((option) => (
+                    <option value={option.value} key={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  className="admin-button secondary compact"
+                  onClick={resetFilters}
+                >
+                  <RotateCcw size={15} />
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="admin-card-header">
             <div>
-              <p className="admin-section-kicker">Records</p>
+              <p className="admin-section-kicker">
+                Records <Filter size={13} />
+              </p>
               <h2 className="admin-card-title">Matches</h2>
             </div>
 
-            <span className="admin-pill">{matches.length} matches</span>
+            <span className="admin-pill">
+              {filteredMatches.length} of {matches.length} matches
+            </span>
           </div>
 
           <div className="admin-list">
@@ -323,23 +545,23 @@ function AdminMatches() {
               <p className="admin-empty">Loading matches...</p>
             ) : matches.length === 0 ? (
               <p className="admin-empty">No matches yet.</p>
+            ) : filteredMatches.length === 0 ? (
+              <p className="admin-empty">
+                No matches found. Adjust your search or filters.
+              </p>
             ) : (
-              matches.map((row) => (
+              filteredMatches.map((row) => (
                 <article className="admin-list-item" key={row.id}>
                   <div className="admin-list-icon">
                     <Radio size={20} />
                   </div>
 
                   <div>
-                    <p className="admin-list-title">
-                      {row.title ||
-                        `${row.team_a_name || "Team A"} vs ${
-                          row.team_b_name || "Team B"
-                        }`}
-                    </p>
+                    <p className="admin-list-title">{getMatchTitle(row)}</p>
                     <p className="admin-list-meta">
                       {row.team_a_score} - {row.team_b_score} ·{" "}
-                      {row.venue || "No venue"} · {row.status}
+                      {row.venue || "No venue"} · {row.status} ·{" "}
+                      {formatMatchDate(row.match_date)}
                     </p>
                   </div>
 
@@ -348,6 +570,7 @@ function AdminMatches() {
                       type="button"
                       className="admin-icon-button"
                       onClick={() => editRow(row)}
+                      aria-label={`Edit ${getMatchTitle(row)}`}
                     >
                       <Edit3 size={16} />
                     </button>
@@ -356,6 +579,7 @@ function AdminMatches() {
                       type="button"
                       className="admin-icon-button danger"
                       onClick={() => handleDelete(row.id)}
+                      aria-label={`Delete ${getMatchTitle(row)}`}
                     >
                       <Trash2 size={16} />
                     </button>
