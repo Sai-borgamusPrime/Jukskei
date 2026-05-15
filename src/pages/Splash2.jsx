@@ -5,6 +5,8 @@ import "./Splash2.css";
 
 const PROFILE_CHECK_RETRIES = 6;
 const PROFILE_CHECK_DELAY = 350;
+const EVENT_PROGRAM_IMAGE = "/event-program.webp";
+const EVENT_PROGRAM_DOWNLOAD_NAME = "Namibia-Open-Jukskei-Event-Program.webp";
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -22,6 +24,7 @@ function Splash2() {
   const [authError, setAuthError] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
 
   const slides = useMemo(
     () => [
@@ -42,6 +45,7 @@ function Splash2() {
   );
 
   const isAuthModalOpen = Boolean(authMode);
+  const isAnyModalOpen = isAuthModalOpen || isProgramModalOpen;
   const currentSlide = slides[currentIndex];
 
   useEffect(() => {
@@ -76,10 +80,17 @@ function Splash2() {
   }, [slides.length]);
 
   useEffect(() => {
-    if (!isAuthModalOpen) return;
+    if (!isAnyModalOpen) return;
 
     const handleEscape = (event) => {
-      if (event.key === "Escape") {
+      if (event.key !== "Escape") return;
+
+      if (isProgramModalOpen) {
+        closeProgramModal();
+        return;
+      }
+
+      if (isAuthModalOpen) {
         closeAuthModal();
       }
     };
@@ -89,7 +100,7 @@ function Splash2() {
     return () => {
       window.removeEventListener("keydown", handleEscape);
     };
-  }, [isAuthModalOpen]);
+  }, [isAnyModalOpen, isProgramModalOpen, isAuthModalOpen]);
 
   const goToSlide = (index) => {
     setCurrentIndex(index);
@@ -106,12 +117,12 @@ function Splash2() {
   };
 
   const handleTouchStart = (event) => {
-    if (isAuthModalOpen) return;
+    if (isAnyModalOpen) return;
     touchStartX.current = event.changedTouches[0].clientX;
   };
 
   const handleTouchEnd = (event) => {
-    if (isAuthModalOpen) return;
+    if (isAnyModalOpen) return;
 
     touchEndX.current = event.changedTouches[0].clientX;
     handleSwipe();
@@ -139,6 +150,14 @@ function Splash2() {
     setAuthError("");
     setAuthMessage("");
     setIsAuthLoading(false);
+  };
+
+  const openProgramModal = () => {
+    setIsProgramModalOpen(true);
+  };
+
+  const closeProgramModal = () => {
+    setIsProgramModalOpen(false);
   };
 
   const goToPublicApp = () => {
@@ -369,6 +388,14 @@ function Splash2() {
 
           <button
             type="button"
+            className="splash2-program-button"
+            onClick={openProgramModal}
+          >
+            View Event Program
+          </button>
+
+          <button
+            type="button"
             className="splash2-admin-access"
             onClick={() => openAuthModal("login")}
           >
@@ -376,6 +403,52 @@ function Splash2() {
           </button>
         </div>
       </section>
+
+      {isProgramModalOpen && (
+        <div className="program-modal-overlay" onClick={closeProgramModal}>
+          <section
+            className="program-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="program-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="program-modal-header">
+              <div>
+                <p>Official Schedule</p>
+                <h2 id="program-modal-title">Event Program</h2>
+              </div>
+
+              <button
+                type="button"
+                className="program-close-button"
+                onClick={closeProgramModal}
+                aria-label="Close event program"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="program-modal-actions">
+              <a
+                href={EVENT_PROGRAM_IMAGE}
+                download={EVENT_PROGRAM_DOWNLOAD_NAME}
+                className="program-download-button"
+              >
+                Download Program
+              </a>
+            </div>
+
+            <div className="program-image-frame">
+              <img
+                src={EVENT_PROGRAM_IMAGE}
+                alt="Jukskei event program"
+                className="program-image"
+              />
+            </div>
+          </section>
+        </div>
+      )}
 
       {isAuthModalOpen && (
         <div className="auth-modal-overlay" onClick={closeAuthModal}>

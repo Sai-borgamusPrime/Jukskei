@@ -187,6 +187,39 @@
   transform: translateY(0);
 }
 
+.splash2-program-button {
+  min-height: 46px;
+  border: 1px solid rgba(47, 111, 255, 0.24);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(241, 246, 255, 0.84));
+  color: #001a4d;
+  font-family: inherit;
+  font-size: 0.94rem;
+  font-weight: 900;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 26px rgba(0, 26, 77, 0.1);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.splash2-program-button:hover {
+  transform: translateY(-1px);
+  background: #ffffff;
+  border-color: rgba(47, 111, 255, 0.5);
+  color: #2f6fff;
+  box-shadow: 0 16px 32px rgba(47, 111, 255, 0.16);
+}
+
+.splash2-program-button:active {
+  transform: translateY(0);
+}
+
 .splash2-admin-access {
   min-height: 42px;
   border: 1px solid rgba(0, 26, 77, 0.12);
@@ -213,6 +246,7 @@
   color: #2f6fff;
 }
 
+.program-modal-overlay,
 .auth-modal-overlay {
   position: fixed;
   inset: 0;
@@ -227,6 +261,92 @@
     rgba(0, 12, 36, 0.64);
   backdrop-filter: blur(18px);
   animation: authOverlayIn 0.25s ease both;
+}
+
+.program-modal {
+  position: relative;
+  width: min(100%, 920px);
+  max-height: min(92dvh, 900px);
+  overflow: hidden;
+  padding: 20px;
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(246, 249, 255, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 30px 90px rgba(0, 26, 77, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  animation: authModalIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.program-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.program-modal-header p {
+  margin: 0 0 4px;
+  color: #2f6fff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.program-modal-header h2 {
+  margin: 0;
+  color: #07152f;
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.program-close-button {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 26, 77, 0.07);
+  color: #001a4d;
+  font-size: 1.7rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.program-close-button:hover {
+  transform: rotate(90deg);
+  background: rgba(47, 111, 255, 0.14);
+}
+
+.program-image-frame {
+  width: 100%;
+  max-height: calc(92dvh - 116px);
+  overflow: auto;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(0, 26, 77, 0.05), rgba(47, 111, 255, 0.04));
+  border: 1px solid rgba(0, 26, 77, 0.1);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  scrollbar-width: thin;
+}
+
+.program-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .auth-modal {
@@ -609,6 +729,14 @@
     max-width: 340px;
     width: 100%;
   }
+
+  .program-modal {
+    padding: 24px;
+  }
+
+  .program-image-frame {
+    max-height: calc(92dvh - 124px);
+  }
 }
 
 @media (min-width: 1024px) {
@@ -656,6 +784,10 @@
   .splash2-enter-button {
     height: 58px;
   }
+
+  .splash2-program-button {
+    min-height: 50px;
+  }
 }
 
 @media (min-width: 1920px) {
@@ -689,9 +821,26 @@
 }
 
 @media (max-width: 480px) {
+  .program-modal-overlay,
   .auth-modal-overlay {
     align-items: flex-end;
     padding: 0;
+  }
+
+  .program-modal {
+    width: 100%;
+    max-height: 94dvh;
+    border-radius: 28px 28px 0 0;
+    padding: 20px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .program-modal-header {
+    margin-bottom: 14px;
+  }
+
+  .program-image-frame {
+    max-height: calc(94dvh - 112px);
+    border-radius: 18px;
   }
 
   .auth-modal {
@@ -727,4 +876,42 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+.program-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.program-download-button {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border: 1px solid rgba(47, 111, 255, 0.22);
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3f7cff, #2f6fff);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 14px 28px rgba(47, 111, 255, 0.26);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.program-download-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px rgba(47, 111, 255, 0.34);
+  filter: brightness(1.04);
+}
+
+.program-download-button:active {
+  transform: translateY(0);
 }
