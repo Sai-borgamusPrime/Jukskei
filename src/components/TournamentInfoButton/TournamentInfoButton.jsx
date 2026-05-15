@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Info, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Info, X, ChevronLeft, ChevronRight } from "lucide-react";
 import "./TournamentInfoButton.css";
 
 const TOURNAMENT_MESSAGES = [
@@ -55,17 +55,12 @@ Dit is lekker om betrokke kan wees by ’n toernooi wat sy wortels diep gegrond 
 
 function TournamentInfoButton() {
   const [open, setOpen] = useState(false);
-  const [messageIndex, setMessageIndex] = useState(-1);
+  const [messageIndex, setMessageIndex] = useState(0);
 
-  const activeMessage =
-    messageIndex >= 0 ? TOURNAMENT_MESSAGES[messageIndex] : null;
+  const totalMessages = TOURNAMENT_MESSAGES.length;
+  const activeMessage = TOURNAMENT_MESSAGES[messageIndex];
 
-  const handleInfoClick = () => {
-    setMessageIndex((previousIndex) => {
-      const nextIndex = (previousIndex + 1) % TOURNAMENT_MESSAGES.length;
-      return nextIndex;
-    });
-
+  const openModal = () => {
     setOpen(true);
   };
 
@@ -73,12 +68,52 @@ function TournamentInfoButton() {
     setOpen(false);
   };
 
+  const goToPreviousMessage = () => {
+    setMessageIndex((currentIndex) =>
+      currentIndex === 0 ? totalMessages - 1 : currentIndex - 1,
+    );
+  };
+
+  const goToNextMessage = () => {
+    setMessageIndex((currentIndex) =>
+      currentIndex === totalMessages - 1 ? 0 : currentIndex + 1,
+    );
+  };
+
+  useEffect(() => {
+    if (!open) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+
+      if (event.key === "ArrowLeft") {
+        goToPreviousMessage();
+      }
+
+      if (event.key === "ArrowRight") {
+        goToNextMessage();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
   return (
     <>
       <button
         type="button"
         className="tournament-info-button"
-        onClick={handleInfoClick}
+        onClick={openModal}
         aria-label="Open tournament information"
         title="Tournament information"
       >
@@ -118,18 +153,85 @@ function TournamentInfoButton() {
               </button>
             </div>
 
-            <div className="tournament-info-body">
-              {activeMessage.content.split("\n").map((paragraph, index) => {
-                const trimmed = paragraph.trim();
+            <div className="tournament-info-carousel">
+              <button
+                type="button"
+                className="tournament-info-arrow tournament-info-arrow-left"
+                onClick={goToPreviousMessage}
+                aria-label="Previous tournament message"
+              >
+                <ChevronLeft size={26} strokeWidth={3} />
+              </button>
 
-                if (!trimmed) return null;
+              <div className="tournament-info-carousel-viewport">
+                <div
+                  className="tournament-info-carousel-track"
+                  style={{
+                    transform: `translateX(-${messageIndex * 100}%)`,
+                  }}
+                >
+                  {TOURNAMENT_MESSAGES.map((message, index) => (
+                    <article
+                      key={message.label}
+                      className="tournament-info-slide"
+                      aria-hidden={messageIndex !== index}
+                    >
+                      <div className="tournament-info-body">
+                        {message.content
+                          .split("\n")
+                          .map((paragraph, pIndex) => {
+                            const trimmed = paragraph.trim();
 
-                return <p key={`${activeMessage.label}-${index}`}>{trimmed}</p>;
-              })}
+                            if (!trimmed) return null;
 
-              <div className="tournament-info-signature">
-                <strong>{activeMessage.author}</strong>
-                {activeMessage.role && <span>{activeMessage.role}</span>}
+                            return (
+                              <p key={`${message.label}-${pIndex}`}>
+                                {trimmed}
+                              </p>
+                            );
+                          })}
+
+                        <div className="tournament-info-signature">
+                          <strong>{message.author}</strong>
+                          {message.role && <span>{message.role}</span>}
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="tournament-info-arrow tournament-info-arrow-right"
+                onClick={goToNextMessage}
+                aria-label="Next tournament message"
+              >
+                <ChevronRight size={26} strokeWidth={3} />
+              </button>
+            </div>
+
+            <div className="tournament-info-carousel-footer">
+              <span className="tournament-info-counter">
+                {messageIndex + 1} / {totalMessages}
+              </span>
+
+              <div
+                className="tournament-info-dots"
+                aria-label="Tournament message navigation"
+              >
+                {TOURNAMENT_MESSAGES.map((message, index) => (
+                  <button
+                    key={message.label}
+                    type="button"
+                    className={`tournament-info-dot ${
+                      messageIndex === index ? "is-active" : ""
+                    }`}
+                    onClick={() => setMessageIndex(index)}
+                    aria-label={`Go to ${message.label} message`}
+                    aria-current={messageIndex === index ? "true" : "false"}
+                  />
+                ))}
               </div>
             </div>
           </section>
