@@ -3,8 +3,136 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
 import { usePublicQuery } from "../hooks/usePublicQuery";
-import { getPublicDivisions, getPublicTeams } from "../services/publicApi";
+import {
+  getPublicDivisions,
+  getPublicMatches,
+  getPublicTeams,
+} from "../services/publicApi";
 import "./Teams.css";
+
+function toNumber(value) {
+  if (value === null || typeof value === "undefined" || value === "") return 0;
+
+  const cleanedValue = String(value)
+    .replace(",", ".")
+    .replace(/[^\d.-]/g, "");
+
+  const numberValue = Number(cleanedValue);
+
+  return Number.isFinite(numberValue) ? numberValue : 0;
+}
+
+function normalise(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function getTeamSlug(team) {
+  return normalise(team?.slug || team?.team_slug);
+}
+
+function getTeamName(team) {
+  return normalise(team?.name || team?.team_name);
+}
+
+function getTeamId(team) {
+  const value = team?.id || team?.team_id || team?.teamId;
+  return value === null || typeof value === "undefined" ? "" : String(value);
+}
+
+function getMatchTeam(match, side) {
+  if (side === "A") {
+    return (
+      match.teamA ||
+      match.team_a ||
+      match.team_a_data || {
+        id: match.team_a_id || match.teamAId || match.team_a,
+        slug: match.team_a_slug,
+        name: match.team_a_name || match.teamAName,
+        logo: match.team_a_logo || match.teamALogo,
+      }
+    );
+  }
+
+  return (
+    match.teamB ||
+    match.team_b ||
+    match.team_b_data || {
+      id: match.team_b_id || match.teamBId || match.team_b,
+      slug: match.team_b_slug,
+      name: match.team_b_name || match.teamBName,
+      logo: match.team_b_logo || match.teamBLogo,
+    }
+  );
+}
+
+function getMatchScore(match, side) {
+  if (side === "A") {
+    return toNumber(
+      match.teamAScore ??
+        match.team_a_score ??
+        match.teamA_score ??
+        match.scoreA ??
+        match.score_a ??
+        match.team_a_points,
+    );
+  }
+
+  return toNumber(
+    match.teamBScore ??
+      match.team_b_score ??
+      match.teamB_score ??
+      match.scoreB ??
+      match.score_b ??
+      match.team_b_points,
+  );
+}
+
+function isSameTeam(team, matchTeam) {
+  if (!team || !matchTeam) return false;
+
+  const teamId = getTeamId(team);
+  const matchTeamId = getTeamId(matchTeam);
+
+  if (teamId && matchTeamId && teamId === matchTeamId) return true;
+
+  const teamSlug = getTeamSlug(team);
+  const matchTeamSlug = getTeamSlug(matchTeam);
+
+  if (teamSlug && matchTeamSlug && teamSlug === matchTeamSlug) return true;
+
+  const teamName = getTeamName(team);
+  const matchTeamName = getTeamName(matchTeam);
+
+  return Boolean(teamName && matchTeamName && teamName === matchTeamName);
+}
+
+function calculateTeamScore(team, matches) {
+  let totalScore = 0;
+  let hasRelatedMatch = false;
+
+  matches.forEach((match) => {
+    const status = normalise(match.status);
+
+    if (status === "cancelled" || status === "canceled") return;
+
+    const teamA = getMatchTeam(match, "A");
+    const teamB = getMatchTeam(match, "B");
+
+    if (isSameTeam(team, teamA)) {
+      hasRelatedMatch = true;
+      totalScore += getMatchScore(match, "A");
+    }
+
+    if (isSameTeam(team, teamB)) {
+      hasRelatedMatch = true;
+      totalScore += getMatchScore(match, "B");
+    }
+  });
+
+  return hasRelatedMatch ? totalScore : toNumber(team?.totalScore);
+}
 
 function Teams() {
   const [query, setQuery] = useState("");
@@ -15,13 +143,30 @@ function Teams() {
     data: teams = [],
     loading: teamsLoading,
     error: teamsError,
-  } = usePublicQuery(getPublicTeams, [], ["teams", "team_divisions"]);
+  } = usePublicQuery(
+    getPublicTeams,
+    [],
+    ["teams", "team_divisions", "matches"],
+  );
 
   const {
     data: divisions = [],
     loading: divisionsLoading,
     error: divisionsError,
   } = usePublicQuery(getPublicDivisions, [], ["team_divisions"]);
+
+  const {
+    data: matches = [],
+    loading: matchesLoading,
+    error: matchesError,
+  } = usePublicQuery(getPublicMatches, [], ["matches", "teams"]);
+
+  const teamsWithLiveScores = useMemo(() => {
+    return teams.map((team) => ({
+      ...team,
+      totalScore: calculateTeamScore(team, matches),
+    }));
+  }, [teams, matches]);
 
   const divisionCodes = useMemo(
     () => divisions.map((division) => division.code),
@@ -35,7 +180,7 @@ function Teams() {
   }, [activeTab, divisionCodes]);
 
   const filteredTeams = useMemo(() => {
-    return teams
+    return [...teamsWithLiveScores]
       .filter((team) => {
         const matchesSearch = team.name
           .toLowerCase()
@@ -46,8 +191,8 @@ function Teams() {
 
         return matchesSearch && matchesDivision;
       })
-      .sort((a, b) => b.totalScore - a.totalScore);
-  }, [query, activeTab, teams]);
+      .sort((a, b) => toNumber(b.totalScore) - toNumber(a.totalScore));
+  }, [query, activeTab, teamsWithLiveScores]);
 
   const getRankClass = (index) => {
     if (index === 0) return "rank-gold";
@@ -63,8 +208,8 @@ function Teams() {
     return "Score";
   };
 
-  const isLoading = teamsLoading || divisionsLoading;
-  const error = teamsError || divisionsError;
+  const isLoading = teamsLoading || divisionsLoading || matchesLoading;
+  const error = teamsError || divisionsError || matchesError;
 
   return (
     <main className="teams-page">
@@ -107,7 +252,9 @@ function Teams() {
                 <button
                   key={division.id}
                   type="button"
-                  className={`tab ${activeTab === division.code ? "active" : ""}`}
+                  className={`tab ${
+                    activeTab === division.code ? "active" : ""
+                  }`}
                   onClick={() => setActiveTab(division.code)}
                 >
                   {division.name}
@@ -120,7 +267,7 @@ function Teams() {
                 type="text"
                 placeholder="Search teams"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(event) => setQuery(event.target.value)}
               />
 
               <button
@@ -167,6 +314,7 @@ function Teams() {
                         alt={team.name}
                         className="team-logo"
                         onError={(event) => {
+                          event.currentTarget.onerror = null;
                           event.currentTarget.src = "/logo.webp";
                         }}
                       />
@@ -185,7 +333,9 @@ function Teams() {
 
                     <span className="score-label">{getScoreLabel(index)}</span>
 
-                    <span className="team-score-badge">{team.totalScore}</span>
+                    <span className="team-score-badge">
+                      {toNumber(team.totalScore)}
+                    </span>
                   </div>
                 </button>
               ))
