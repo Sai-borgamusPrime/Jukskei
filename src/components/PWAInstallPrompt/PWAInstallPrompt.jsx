@@ -12,61 +12,117 @@ function getDeviceInstructions() {
   const userAgent = window.navigator.userAgent.toLowerCase();
 
   const isIOS = /iphone|ipad|ipod/.test(userAgent);
-  const isMac = /macintosh/.test(userAgent);
   const isAndroid = /android/.test(userAgent);
+  const isMac = /macintosh/.test(userAgent);
 
   if (isIOS) {
     return {
-      type: "ios",
-      title: "Install Jukskei on your iPhone",
+      title: "Add Jukskei to Your Home Screen?",
+      copy: "Add this app to your home screen for quick and easy access when you're on the go. Here's how:",
       steps: [
-        "Tap the Share icon in your browser.",
-        "Choose Add to Home Screen.",
-        "Tap Add to finish installing the app.",
+        {
+          text: "Tap the Share icon in Safari, or the",
+          showMenuIcon: true,
+          afterIcon: "menu icon if you are using Chrome.",
+        },
+        {
+          text: "Select Add to Home Screen.",
+        },
+        {
+          text: "Tap Add in the top-right corner to finish.",
+        },
       ],
-    };
-  }
-
-  if (isMac) {
-    return {
-      type: "manual",
-      title: "Install Jukskei on your Mac",
-      steps: [
-        "Open the browser menu.",
-        "Choose Add to Dock or Install Jukskei if available.",
-        "Launch it from your Dock or Applications.",
-      ],
+      note: "On iPhone, the option may appear under Safari's Share menu or your browser's More Options menu.",
     };
   }
 
   if (isAndroid) {
     return {
-      type: "manual",
-      title: "Install Jukskei on your phone",
+      title: "Add Jukskei to Your Home Screen?",
+      copy: "Add this app to your home screen for quick and easy access when you're on the go. Here's how:",
       steps: [
-        "Tap Install below if your browser supports it.",
-        "If no prompt appears, open the browser menu.",
-        "Choose Add to Home Screen or Install app.",
+        {
+          text: "Tap the",
+          showMenuIcon: true,
+          afterIcon: "menu icon More Options.",
+        },
+        {
+          text: "Select Add to Home Screen or Install app.",
+        },
+        {
+          text: "Confirm by tapping Add or Install.",
+        },
       ],
+      note: "The wording may differ slightly depending on your Android browser.",
+    };
+  }
+
+  if (isMac) {
+    return {
+      title: "Add Jukskei to Your Mac?",
+      copy: "Add this app for quick access from your Dock or Applications. Here's how:",
+      steps: [
+        {
+          text: "Open the browser",
+          showMenuIcon: true,
+          afterIcon: "menu.",
+        },
+        {
+          text: "Select Add to Dock or Install Jukskei if available.",
+        },
+        {
+          text: "Open it from your Dock or Applications.",
+        },
+      ],
+      note: "Availability depends on the browser and whether the app is opened from a supported browser.",
     };
   }
 
   return {
-    type: "desktop",
-    title: "Install Jukskei on this device",
+    title: "Add Jukskei to Your Device?",
+    copy: "Add this app for quick access from your desktop, Start menu, Dock, or apps list. Here's how:",
     steps: [
-      "Click Install below if prompted.",
-      "After installation, open it from your desktop, Start menu, Dock, or apps list.",
-      "Pin it manually to the taskbar if your operating system allows it.",
+      {
+        text: "Open your browser",
+        showMenuIcon: true,
+        afterIcon: "menu.",
+      },
+      {
+        text: "Look for Install app, Add to Home Screen, or Add to Dock.",
+      },
+      {
+        text: "Follow the browser prompt to finish.",
+      },
     ],
+    note: "Some browsers do not support installing web apps. Try Chrome, Edge, or Safari.",
   };
 }
 
-function PWAInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [visible, setVisible] = useState(false);
-  const [installStatus, setInstallStatus] = useState("idle");
+function StepText({ step }) {
+  return (
+    <span className="pwa-install-step-text">
+      {step.text}
 
+      {step.showMenuIcon && (
+        <>
+          {" "}
+          <span
+            className="pwa-install-menu-icon"
+            aria-label="More Options menu icon"
+            title="More Options"
+          >
+            ⋮
+          </span>{" "}
+        </>
+      )}
+
+      {step.afterIcon}
+    </span>
+  );
+}
+
+function PWAInstallPrompt() {
+  const [visible, setVisible] = useState(false);
   const instructions = useMemo(() => getDeviceInstructions(), []);
 
   useEffect(() => {
@@ -77,56 +133,16 @@ function PWAInstallPrompt() {
 
     setVisible(true);
 
-    const handleBeforeInstallPrompt = (event) => {
-      event.preventDefault();
-      setDeferredPrompt(event);
-      setVisible(true);
-    };
-
     const handleAppInstalled = () => {
-      setDeferredPrompt(null);
-      setInstallStatus("installed");
       setVisible(false);
     };
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
-      window.removeEventListener(
-        "beforeinstallprompt",
-        handleBeforeInstallPrompt,
-      );
       window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, []);
-
-  const handleInstall = async () => {
-    if (!deferredPrompt) {
-      setInstallStatus("manual");
-      return;
-    }
-
-    try {
-      setInstallStatus("prompting");
-
-      deferredPrompt.prompt();
-
-      const choice = await deferredPrompt.userChoice;
-
-      if (choice.outcome === "accepted") {
-        setInstallStatus("installed");
-        setVisible(false);
-      } else {
-        setInstallStatus("dismissed");
-      }
-
-      setDeferredPrompt(null);
-    } catch (error) {
-      console.error("Install prompt failed:", error);
-      setInstallStatus("manual");
-    }
-  };
 
   const handleClose = () => {
     setVisible(false);
@@ -148,62 +164,28 @@ function PWAInstallPrompt() {
           ×
         </button>
 
-        <div className="pwa-install-brand">
-          <img src="/logo.webp" alt="Jukskei Tournament Logo" />
-          <div>
-            <p>Install App</p>
-            <h2>{instructions.title}</h2>
-          </div>
+        <div className="pwa-install-logo-wrap">
+          <img
+            src="/logo.webp"
+            alt="Jukskei Tournament Logo"
+            className="pwa-install-logo"
+          />
         </div>
 
-        <p className="pwa-install-copy">
-          Install the Jukskei Tournament app for faster access, a full-screen
-          app experience, and easier launching from your phone or computer.
-        </p>
+        <h2 className="pwa-install-title">{instructions.title}</h2>
 
-        <div className="pwa-install-steps">
+        <p className="pwa-install-copy">{instructions.copy}</p>
+
+        <ol className="pwa-install-steps">
           {instructions.steps.map((step, index) => (
-            <div className="pwa-install-step" key={step}>
-              <span>{index + 1}</span>
-              <p>{step}</p>
-            </div>
+            <li className="pwa-install-step" key={`${index}-${step.text}`}>
+              <span className="pwa-install-step-number">{index + 1}.</span>
+              <StepText step={step} />
+            </li>
           ))}
-        </div>
+        </ol>
 
-        {installStatus === "manual" && (
-          <p className="pwa-install-note">
-            Your browser does not allow this app to open the install prompt
-            automatically. Use your browser menu to add it manually.
-          </p>
-        )}
-
-        {installStatus === "dismissed" && (
-          <p className="pwa-install-note">
-            Installation was cancelled. You can still install it later from your
-            browser menu.
-          </p>
-        )}
-
-        <div className="pwa-install-actions">
-          <button
-            type="button"
-            className="pwa-install-primary"
-            onClick={handleInstall}
-            disabled={installStatus === "prompting"}
-          >
-            {installStatus === "prompting"
-              ? "Opening install prompt..."
-              : "Install App"}
-          </button>
-
-          <button
-            type="button"
-            className="pwa-install-secondary"
-            onClick={handleClose}
-          >
-            Not now
-          </button>
-        </div>
+        <p className="pwa-install-note">{instructions.note}</p>
       </section>
     </div>
   );
