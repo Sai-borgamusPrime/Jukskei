@@ -3,7 +3,9 @@ import { useLocation } from "react-router-dom";
 import { Building2, HeartHandshake, X } from "lucide-react";
 import "./CompanyCredit.css";
 
-const COMPANY_NAME = "Schoemans Digital Solutions";
+const COMPANY_NAME = "Schoemans";
+const DIGITAL_NAME = "Digital";
+const SOLUTIONS_NAME = "Solutions";
 const COMPANY_LOGO = "/schoemans-logo.webp";
 
 function CompanyCredit() {
@@ -32,7 +34,7 @@ function CompanyCredit() {
           routeState.isSplashRoute ? "is-splash" : ""
         }`}
         onClick={() => setOpen(true)}
-        aria-label={`View app credit for ${COMPANY_NAME}`}
+        aria-label={`View app credit for ${COMPANY_NAME} ${DIGITAL_NAME}`}
       >
         <span className="company-credit-icon" aria-hidden="true">
           <HeartHandshake size={15} strokeWidth={2.5} />
@@ -69,7 +71,7 @@ function CompanyCredit() {
               <div className="company-credit-logo-wrap">
                 <img
                   src={COMPANY_LOGO}
-                  alt={`${COMPANY_NAME} logo`}
+                  alt={`${COMPANY_NAME} ${DIGITAL_NAME} logo`}
                   onError={(event) => {
                     event.currentTarget.onerror = null;
                     event.currentTarget.src = "/logo.webp";
@@ -79,8 +81,12 @@ function CompanyCredit() {
 
               <div>
                 <p>Professional acknowledgement</p>
+
                 <h2 id="company-credit-title">
-                  Proudly powered by Schoemans Digital Solutions
+                  Proudly powered by{" "}
+                  {/*<h2 style={{ color: "#0334c7" }}>Schoemans</h2>{" "}*/}
+                  <span style={{ color: "#0334c7" }}>{DIGITAL_NAME}</span>{" "}
+                  <span style={{ color: "#fe2202" }}>{SOLUTIONS_NAME}</span>
                 </h2>
               </div>
             </div>
@@ -93,9 +99,12 @@ function CompanyCredit() {
               </p>
 
               <p>
-                A special thank you goes to <strong>{COMPANY_NAME}</strong> for
-                supporting practical digital innovation and community-focused
-                technology.
+                A special thank you goes to{" "}
+                {/*<strong style={{ color: "#0334c7" }}>{COMPANY_NAME}</strong>{" "}*/}
+                <strong style={{ color: "#0334c7" }}>{DIGITAL_NAME}</strong>{" "}
+                <strong style={{ color: "#fe2202" }}>{SOLUTIONS_NAME}</strong>{" "}
+                for supporting practical digital innovation and
+                community-focused technology.
               </p>
 
               <div className="company-credit-highlight">
