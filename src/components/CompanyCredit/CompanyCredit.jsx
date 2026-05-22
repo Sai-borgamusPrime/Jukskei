@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Building2, HeartHandshake, X } from "lucide-react";
 import "./CompanyCredit.css";
 
-const COMPANY_NAME = "Schoemans Office Solutions";
+const COMPANY_NAME = "Schoemans Digital Solutions";
 const COMPANY_LOGO = "/schoemans-logo.webp";
 
 function CompanyCredit() {
@@ -40,7 +40,7 @@ function CompanyCredit() {
 
         <span className="company-credit-text">
           <small>Powered by</small>
-          <strong>Schoemans</strong>
+          <strong>Schoemans Digital Solutions</strong>
         </span>
       </button>
 
@@ -79,7 +79,9 @@ function CompanyCredit() {
 
               <div>
                 <p>Professional acknowledgement</p>
-                <h2 id="company-credit-title">Proudly powered by Schoemans</h2>
+                <h2 id="company-credit-title">
+                  Proudly powered by Schoemans Digital Solutions
+                </h2>
               </div>
             </div>
 
