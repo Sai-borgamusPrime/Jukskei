@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Building2, HeartHandshake, X } from "lucide-react";
 import "./CompanyCredit.css";
@@ -6,11 +6,95 @@ import "./CompanyCredit.css";
 const COMPANY_NAME = "Schoemans";
 const DIGITAL_NAME = "Digital";
 const SOLUTIONS_NAME = "Solutions";
+
 const COMPANY_LOGO = "/schoemans-logo.webp";
+const COMPANY_LOGO_LIGHT_MODE = "/schoemans-logo-dark.png";
+
+function detectLightMode() {
+  if (typeof window === "undefined") return false;
+
+  const root = document.documentElement;
+  const body = document.body;
+
+  const themeValue =
+    root.getAttribute("data-theme") ||
+    body.getAttribute("data-theme") ||
+    root.getAttribute("data-bs-theme") ||
+    body.getAttribute("data-bs-theme") ||
+    root.getAttribute("data-color-mode") ||
+    body.getAttribute("data-color-mode");
+
+  if (themeValue?.toLowerCase().includes("light")) return true;
+  if (themeValue?.toLowerCase().includes("dark")) return false;
+
+  const classNames = `${root.className} ${body.className}`.toLowerCase();
+
+  if (
+    classNames.includes("light") ||
+    classNames.includes("light-mode") ||
+    classNames.includes("theme-light")
+  ) {
+    return true;
+  }
+
+  if (
+    classNames.includes("dark") ||
+    classNames.includes("dark-mode") ||
+    classNames.includes("theme-dark")
+  ) {
+    return false;
+  }
+
+  return window.matchMedia?.("(prefers-color-scheme: light)").matches ?? false;
+}
 
 function CompanyCredit() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [isLightMode, setIsLightMode] = useState(() => detectLightMode());
+
+  useEffect(() => {
+    const syncLogoWithTheme = () => {
+      setIsLightMode(detectLightMode());
+    };
+
+    syncLogoWithTheme();
+
+    const observer = new MutationObserver(syncLogoWithTheme);
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: [
+        "class",
+        "data-theme",
+        "data-bs-theme",
+        "data-color-mode",
+        "style",
+      ],
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: [
+        "class",
+        "data-theme",
+        "data-bs-theme",
+        "data-color-mode",
+        "style",
+      ],
+    });
+
+    const mediaQuery = window.matchMedia?.("(prefers-color-scheme: light)");
+
+    mediaQuery?.addEventListener?.("change", syncLogoWithTheme);
+
+    return () => {
+      observer.disconnect();
+      mediaQuery?.removeEventListener?.("change", syncLogoWithTheme);
+    };
+  }, []);
+
+  const currentLogo = isLightMode ? COMPANY_LOGO_LIGHT_MODE : COMPANY_LOGO;
 
   const routeState = useMemo(() => {
     const pathname = location.pathname;
@@ -70,7 +154,7 @@ function CompanyCredit() {
             <div className="company-credit-brand">
               <div className="company-credit-logo-wrap">
                 <img
-                  src={COMPANY_LOGO}
+                  src={currentLogo}
                   alt={`${COMPANY_NAME} ${DIGITAL_NAME} logo`}
                   onError={(event) => {
                     event.currentTarget.onerror = null;
