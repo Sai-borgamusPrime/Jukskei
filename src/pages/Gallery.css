@@ -620,3 +620,117 @@
     margin-bottom: 8px;
   }
 }
+
+.gallery-facebook-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(23, 105, 255, 0.35);
+  background: #1769ff;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(23, 105, 255, 0.28);
+  transition:
+    background-color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+.gallery-facebook-button:hover {
+  background: #0f57d8;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(23, 105, 255, 0.34);
+}
+
+.gallery-facebook-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  background: #fff;
+  color: #1769ff;
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+@media (max-width: 420px) {
+  .gallery-facebook-button span:last-child {
+    display: none;
+  }
+
+  .gallery-facebook-button {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+  }
+}
+
+/* Make the Facebook button compact on phones and tablets */
+@media (max-width: 1023px) {
+  .gallery-facebook-button span:last-child {
+    display: none;
+  }
+
+  .gallery-facebook-button {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    flex: 0 0 42px;
+  }
+}
+
+/* Small phones + large cell phones */
+@media (max-width: 767px) {
+  body:has(.gallery-page) .tournament-info-button {
+    width: 42px;
+    height: 42px;
+    top: 24px;
+
+    /* Align with the 430px Gallery shell instead of the viewport edge */
+    right: calc(max(16px, (100vw - 430px) / 2) + 54px);
+  }
+}
+
+/* Tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
+  body:has(.gallery-page) .tournament-info-button {
+    width: 42px;
+    height: 42px;
+    top: 32px;
+
+    /* Align with the 760px Gallery shell used on tablet screens */
+    right: calc(max(24px, (100vw - 760px) / 2) + 54px);
+  }
+}
+
+/* Desktop and larger screens */
+@media (min-width: 1024px) {
+  body:has(.gallery-page) .tournament-info-button {
+    top: 54px;
+    right: calc(max(40px, (100vw - 1120px) / 2) + 64px);
+  }
+}
+
+/* Wider desktop layout */
+@media (min-width: 1440px) {
+  body:has(.gallery-page) .tournament-info-button {
+    right: calc(max(60px, (100vw - 1320px) / 2) + 64px);
+  }
+}
+
+/* Ultra-wide layout */
+@media (min-width: 1920px) {
+  body:has(.gallery-page) .tournament-info-button {
+    right: calc(max(120px, (100vw - 1680px) / 2) + 64px);
+  }
+}

@@ -447,3 +447,17 @@
     line-height: 1.65;
   }
 }
+
+/* Gallery page: align tournament info button beside the Facebook button */
+body:has(.gallery-page) .tournament-info-button {
+  top: 24px;
+  right: calc(max(14px, env(safe-area-inset-right)) + 58px);
+}
+
+/* Mobile alignment */
+@media (max-width: 640px) {
+  body:has(.gallery-page) .tournament-info-button {
+    top: 24px;
+    right: calc(max(12px, env(safe-area-inset-right)) + 54px);
+  }
+}

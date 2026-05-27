@@ -5,6 +5,9 @@ import { usePublicQuery } from "../hooks/usePublicQuery";
 import { getPublicGallery } from "../services/publicApi";
 import "./Gallery.css";
 
+const FACEBOOK_PAGE_URL =
+  "https://www.facebook.com/media/set/?set=oa.1712426963226924&type=3";
+
 function Gallery() {
   const [activeCategoryId, setActiveCategoryId] = useState(null);
   const [fullscreenImage, setFullscreenImage] = useState(null);
@@ -34,6 +37,18 @@ function Gallery() {
             <h1 className="gallery-title">JUKSKEI</h1>
             <p className="gallery-kicker">Tournament Memories</p>
           </div>
+          <a
+            className="gallery-facebook-button"
+            href={FACEBOOK_PAGE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open Facebook page in a new tab"
+          >
+            <span className="gallery-facebook-icon" aria-hidden="true">
+              f
+            </span>
+            <span>Facebook</span>
+          </a>
         </header>
 
         {!activeCategory ? (
